@@ -2,8 +2,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 // === 0. LENIS SMOOTH SCROLL ===
 const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
-function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-requestAnimationFrame(raf);
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+gsap.ticker.lagSmoothing(0);
 
 window.addEventListener('load', () => {
     gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out', delay: 0.8 });
@@ -64,186 +65,6 @@ function animateCursor() {
 }
 animateCursor();
 
-// === 3. HERO THREE.JS GAME ===
-/*
-const heroContainer = document.getElementById('hero-webgl');
-const hScene = new THREE.Scene();
-hScene.fog = new THREE.FogExp2(0x030604, 0.0015);
-const hCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2500);
-hCamera.position.set(0, 0, 0);
-const hRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-hRenderer.setSize(window.innerWidth, window.innerHeight);
-hRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-heroContainer.appendChild(hRenderer.domElement);
-
-const renderScene = new THREE.RenderPass(hScene, hCamera);
-const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.5, 0.2);
-const composer = new THREE.EffectComposer(hRenderer);
-composer.addPass(renderScene); composer.addPass(bloomPass);
-
-hScene.add(new THREE.AmbientLight(0x204937, 0.5));
-const playerLight = new THREE.PointLight(0xdcb558, 4, 1200);
-hScene.add(playerLight);
-
-// Higher poly star field that doesn't vanish
-const starCount = 1200;
-const starGeo = new THREE.BufferGeometry();
-const starPos = new Float32Array(starCount * 3);
-const starVel = [];
-for (let i = 0; i < starCount; i++) {
-    starPos[i * 3] = (Math.random() - 0.5) * 400;
-    starPos[i * 3 + 1] = (Math.random() - 0.5) * 400;
-    starPos[i * 3 + 2] = -Math.random() * 2500;
-    starVel.push(0.3 + Math.random() * 1.2);
-}
-starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-const starMat = new THREE.PointsMaterial({ color: 0xefe7d8, size: 2.0, transparent: true, opacity: 0.8, sizeAttenuation: true });
-const stars = new THREE.Points(starGeo, starMat);
-hScene.add(stars);
-
-// Higher poly obstacles and rings
-const artifactMat = new THREE.MeshPhysicalMaterial({ color: 0x112b1d, metalness: 0.8, roughness: 0.2, clearcoat: 1.0, emissive: 0x112b1d, emissiveIntensity: 0.15 });
-const ringMat = new THREE.MeshPhysicalMaterial({ color: 0xdcb558, emissive: 0xdcb558, emissiveIntensity: 0.8, metalness: 0.3, roughness: 0.1, clearcoat: 1.0 });
-// Higher detail geometry (more segments)
-const artifactGeo = new THREE.OctahedronGeometry(6, 2);
-const ringGeo = new THREE.TorusGeometry(12, 1.0, 32, 100);
-const objects = [];
-const tunnelLength = 2500;
-
-for (let i = 0; i < 30; i++) {
-    const m = new THREE.Mesh(artifactGeo, artifactMat);
-    const r = Math.random() * 90;
-    m.position.set(Math.cos(Math.random() * Math.PI * 2) * r, (Math.random() - 0.5) * 90, -Math.random() * tunnelLength);
-    m.rotation.set(Math.random(), Math.random(), 0);
-    hScene.add(m); objects.push({ mesh: m, type: 'bg', hurtTriggered: false });
-}
-for (let i = 0; i < 12; i++) {
-    const m = new THREE.Mesh(ringGeo, ringMat);
-    m.position.set(Math.cos(Math.random() * Math.PI * 2) * (Math.random() * 50), (Math.random() - 0.5) * 50, -Math.random() * tunnelLength);
-    hScene.add(m); objects.push({ mesh: m, type: 'ring', collected: false });
-}
-
-let snitchObj = { mesh: null, type: 'snitch', collected: false };
-const gltfLoader = new THREE.GLTFLoader();
-gltfLoader.load('nimbus2000.glb', gltf => {
-    const model = gltf.scene; model.scale.set(5, 5, 5); model.position.set(20, 10, -900);
-    model.traverse(c => { if (c.isMesh && c.material) { c.material.metalness = 0.8; c.material.roughness = 0.2; } });
-    hScene.add(model); snitchObj.mesh = model; objects.push(snitchObj);
-}, undefined, err => console.error("GLB error:", err));
-
-let targetX = 0, targetY = 0, lastTargetX = 0;
-const cameraRoll = { hurt: 0, bank: 0 };
-let score = 0;
-let gameSpeedMultiplier = 1.0;
-const scoreNum = document.getElementById('scoreNum');
-const scoreBox = document.getElementById('scoreBox');
-
-window.addEventListener('mousemove', e => {
-    targetX = (e.clientX / window.innerWidth) * 2 - 1;
-    targetY = -(e.clientY / window.innerHeight) * 2 + 1;
-});
-
-let currentSpeed = 0, heroTime = 0, heroVisible = true;
-ScrollTrigger.create({ trigger: "#hero", start: "top bottom", end: "bottom top", onToggle: self => heroVisible = self.isActive });
-
-function updateSpeedFromScore() {
-    const tier = Math.floor(score / 10);
-    gameSpeedMultiplier = 1.0 + (tier * 0.10);
-}
-
-function animateHero() {
-    requestAnimationFrame(animateHero);
-    if (!heroVisible) return;
-    heroTime += 0.01;
-
-    const baseSpeed = 1.0 * gameSpeedMultiplier;
-    currentSpeed += (baseSpeed - currentSpeed) * 0.03;
-    hCamera.position.z -= currentSpeed;
-    playerLight.position.copy(hCamera.position);
-
-    hCamera.position.x += (targetX * 55 - hCamera.position.x) * 0.025;
-    hCamera.position.y += (targetY * 40 - hCamera.position.y) * 0.025;
-    hCamera.rotation.y = -hCamera.position.x * 0.004;
-    hCamera.rotation.x = hCamera.position.y * 0.004;
-
-    let targetVelX = targetX - lastTargetX;
-    cameraRoll.bank += (targetVelX * 2.5 - cameraRoll.bank) * 0.05;
-    lastTargetX = targetX;
-    hCamera.rotation.z = cameraRoll.bank + cameraRoll.hurt;
-
-    // Stars — always recycle relative to camera, never vanish
-    const sp = starGeo.attributes.position.array;
-    const tf = gameSpeedMultiplier;
-    starMat.size = 2.0 + (tf - 1) * 4;  // Trails get bigger with speed
-    starMat.opacity = Math.min(1.0, 0.7 + (tf - 1) * 0.3);
-    for (let i = 0; i < starCount; i++) {
-        sp[i * 3 + 2] += currentSpeed * starVel[i];
-        // Recycle stars that pass behind the camera
-        if (sp[i * 3 + 2] > hCamera.position.z + 200) {
-            sp[i * 3 + 2] = hCamera.position.z - 2000 - Math.random() * 500;
-            sp[i * 3] = (Math.random() - 0.5) * 400;
-            sp[i * 3 + 1] = (Math.random() - 0.5) * 400;
-        }
-    }
-    starGeo.attributes.position.needsUpdate = true;
-    bloomPass.strength = 1.2 + (tf - 1) * 1.0;
-
-    // Nimbus bob
-    if (snitchObj.mesh && !snitchObj.collected) {
-        snitchObj.mesh.position.x += Math.sin(heroTime * 2) * 0.3;
-        snitchObj.mesh.position.y += Math.cos(heroTime * 3) * 0.2;
-        snitchObj.mesh.rotation.z = Math.sin(heroTime * 2) * 0.1;
-    }
-
-    objects.forEach(obj => {
-        const mesh = obj.mesh; if (!mesh) return;
-        if (obj.type === 'bg') {
-            mesh.rotation.x += 0.003; mesh.rotation.y += 0.003;
-            if (hCamera.position.z < mesh.position.z && hCamera.position.z > mesh.position.z - 18) {
-                let dx = hCamera.position.x - mesh.position.x, dy = hCamera.position.y - mesh.position.y;
-                if (Math.sqrt(dx * dx + dy * dy) < 14 && !obj.hurtTriggered) {
-                    obj.hurtTriggered = true; score = 0; updateSpeedFromScore();
-                    scoreNum.innerText = score;
-                    gsap.fromTo(scoreBox, { scale: 1.2, color: "#f00" }, { scale: 1, color: "var(--beige)", duration: 0.4 });
-                    const flash = document.getElementById('hurt-flash');
-                    if (flash) gsap.fromTo(flash, { opacity: 0.25 }, { opacity: 0, duration: 0.5, ease: "power2.out" });
-                    gsap.fromTo(cameraRoll, { hurt: (Math.random() > 0.5 ? 0.2 : -0.2) }, { hurt: 0, duration: 0.6, ease: "elastic.out(1,0.3)" });
-                }
-            } else obj.hurtTriggered = false;
-        }
-        if ((obj.type === 'ring' || obj.type === 'snitch') && !obj.collected) {
-            if (hCamera.position.z < mesh.position.z && hCamera.position.z > mesh.position.z - 18) {
-                let dx = hCamera.position.x - mesh.position.x, dy = hCamera.position.y - mesh.position.y;
-                if (Math.sqrt(dx * dx + dy * dy) < (obj.type === 'ring' ? 20 : 16)) {
-                    obj.collected = true; score += obj.type === 'snitch' ? 5 : 1; updateSpeedFromScore();
-                    scoreNum.innerText = score;
-                    gsap.fromTo(scoreBox, { scale: 1.2, color: "#fff" }, { scale: 1, color: "var(--beige)", duration: 0.4 });
-                    if (obj.type === 'ring') { const fm = mesh.material.clone(); fm.emissiveIntensity = 4; mesh.material = fm; }
-                    gsap.to(mesh.scale, { x: 0, y: 0, z: 0, duration: 0.4, ease: "power2.in" });
-                    setTimeout(() => mesh.visible = false, 400);
-                }
-            }
-        }
-        // Recycle objects
-        if (mesh.position.z > hCamera.position.z + 80) {
-            mesh.position.z -= tunnelLength;
-            if (obj.type === 'ring' || obj.type === 'snitch') {
-                obj.collected = false; mesh.visible = true;
-                if (obj.type === 'ring') { mesh.scale.set(1, 1, 1); mesh.material = ringMat; } else mesh.scale.set(5, 5, 5);
-                mesh.position.x = Math.cos(Math.random() * Math.PI * 2) * (Math.random() * 50);
-                mesh.position.y = (Math.random() - 0.5) * 50;
-            }
-            if (obj.type === 'bg') {
-                obj.hurtTriggered = false; const r = Math.random() * 90;
-                mesh.position.x = Math.cos(Math.random() * Math.PI * 2) * r;
-                mesh.position.y = (Math.random() - 0.5) * 90;
-            }
-        }
-    });
-    composer.render();
-}
-animateHero();
-*/
 
 // === 4. ABOUT ME PARALLAX ===
 const aboutC = document.getElementById('aboutImageContainer');
@@ -278,7 +99,7 @@ if (stitchLineBottom) {
     const wrapper = document.getElementById('logo-marquee');
     if (!wrapper) return;
     const BASE_SPEED = 22; // seconds for a full loop at rest
-    const MIN_SPEED  =  6; // seconds at max scroll velocity
+    const MIN_SPEED = 6; // seconds at max scroll velocity
     let currentSpeed = BASE_SPEED;
     let lastScrollY = window.scrollY;
     let raf;
@@ -310,66 +131,48 @@ const customCursor = document.querySelector('.custom-cursor');
 const carouselItems = document.querySelectorAll('.carousel-item');
 
 if (rwSlider) {
-    let rwIsDragging = false;
+    function getScrollAmount() {
+        let sliderWidth = rwSlider.scrollWidth;
+        return -Math.max(0, sliderWidth - window.innerWidth);
+    }
 
-    rwSlider.addEventListener('mousedown', (e) => {
-        rwIsDown = true;
-        rwIsDragging = false;
-        rwStartX = e.pageX - rwSlider.offsetLeft;
-        rwScrollLeft = rwSlider.scrollLeft;
-        rwSlider.style.scrollSnapType = 'none';
+    const tween = gsap.to(rwSlider, {
+        x: () => getScrollAmount(),
+        ease: "none"
     });
 
-    rwSlider.addEventListener('mouseleave', () => {
-        rwIsDown = false;
-        rwSlider.style.scrollSnapType = 'x mandatory';
+    ScrollTrigger.create({
+        trigger: ".recent-works-section",
+        start: "top top",
+        end: () => `+=${getScrollAmount() * -1}`,
+        pin: true,
+        animation: tween,
+        scrub: 1,
+        invalidateOnRefresh: true
     });
 
-    rwSlider.addEventListener('mouseup', () => {
-        rwIsDown = false;
-        rwSlider.style.scrollSnapType = 'x mandatory';
-    });
-
-    rwSlider.addEventListener('mousemove', (e) => {
-        if (!rwIsDown) return;
-        e.preventDefault();
-        rwIsDragging = true;
-        const x = e.pageX - rwSlider.offsetLeft;
-        const walk = (x - rwStartX) * 2;
-        rwSlider.scrollLeft = rwScrollLeft - walk;
-    });
-
-    // Prevent clicks on links while dragging
-    rwSlider.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', e => {
-            if (rwIsDragging) e.preventDefault();
-        });
-    });
-
-    // Set video speeds
+    // Set video hover play/pause and fix initial frame
     const rwVideos = rwSlider.querySelectorAll('video');
     rwVideos.forEach(v => {
-        v.playbackRate = 0.75;
+        v.pause();
+        // Force the first frame to render
+        v.addEventListener('loadeddata', () => {
+            v.currentTime = 0.01;
+        }, { once: true });
+        if (v.readyState >= 2) {
+            v.currentTime = 0.01;
+        }
+
         const item = v.closest('.carousel-item');
         if (item) {
-            item.addEventListener('mouseenter', () => { v.playbackRate = 1.0; });
-            item.addEventListener('mouseleave', () => { v.playbackRate = 0.75; });
+            item.addEventListener('mouseenter', () => {
+                v.play().catch(() => { });
+            });
+            item.addEventListener('mouseleave', () => {
+                v.pause();
+            });
         }
     });
-
-    // Wheel Scroll Logic
-    rwSlider.addEventListener('wheel', (e) => {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-            e.preventDefault();
-            rwSlider.style.scrollSnapType = 'none';
-            rwSlider.scrollLeft += e.deltaY;
-
-            clearTimeout(rwSlider.scrollTimeout);
-            rwSlider.scrollTimeout = setTimeout(() => {
-                rwSlider.style.scrollSnapType = 'x mandatory';
-            }, 150);
-        }
-    }, { passive: false });
 
     // Custom Cursor Pill Toggle
     if (customCursor) {
@@ -385,12 +188,36 @@ if (rwSlider) {
 }
 
 // === GLOBAL CURSOR TRACKING ===
+let cursorMouseX = window.innerWidth / 2;
+let cursorMouseY = window.innerHeight / 2;
+let cursorLastX = cursorMouseX;
+let cursorLastY = cursorMouseY;
+let cursorBank = 0;
+
+const greenBgSelectors = [
+    '.marquee-section',
+    '.stitch-strip',
+    '.carousel-item[style*="--card-bg: var(--forest-green)"]'
+];
+
+document.querySelectorAll(greenBgSelectors.join(', ')).forEach(el => {
+    el.addEventListener('mouseenter', () => {
+        if (customCursor) customCursor.classList.add('blend-difference');
+    });
+    el.addEventListener('mouseleave', () => {
+        if (customCursor) customCursor.classList.remove('blend-difference');
+    });
+});
+
 document.addEventListener('mousemove', (e) => {
-    if(customCursor) {
-        customCursor.style.left = `${e.clientX}px`;
-        customCursor.style.top = `${e.clientY}px`;
+    cursorMouseX = e.clientX;
+    cursorMouseY = e.clientY;
+
+    if (customCursor) {
+        customCursor.style.left = `${cursorMouseX}px`;
+        customCursor.style.top = `${cursorMouseY}px`;
     }
-    
+
     let shouldShowTriangle = false;
     if (document.body.classList.contains('nav-open')) {
         shouldShowTriangle = true;
@@ -402,24 +229,52 @@ document.addEventListener('mousemove', (e) => {
             shouldShowTriangle = true;
         }
     }
-    
+
     if (shouldShowTriangle) {
         document.body.classList.add('show-triangle');
-        if(cursorCanvas) cursorCanvas.style.opacity = '0';
+        if (cursorCanvas) cursorCanvas.style.opacity = '0';
     } else {
         document.body.classList.remove('show-triangle');
-        if(cursorCanvas) cursorCanvas.style.opacity = '1';
+        if (cursorCanvas) cursorCanvas.style.opacity = '1';
     }
 });
+
+function animateCursorPhysics() {
+    requestAnimationFrame(animateCursorPhysics);
+    if (!customCursor) return;
+
+    let vx = cursorMouseX - cursorLastX;
+    let vy = cursorMouseY - cursorLastY;
+    cursorLastX = cursorMouseX;
+    cursorLastY = cursorMouseY;
+
+    // Calculate air drag rotation based on movement speed
+    // Higher horizontal velocity = more bank rotation
+    let targetBank = vx * 1.5;
+    targetBank = Math.max(-50, Math.min(50, targetBank));
+
+    // Smoothly apply the bank effect and spring back to 0 when stopped
+    cursorBank += (targetBank - cursorBank) * 0.1;
+
+    const cursorSvg = customCursor.querySelector('.cursor-triangle');
+    if (cursorSvg) {
+        // We add the baseline -135deg if the SVG is pointing top-left by default.
+        // Wait, earlier I saw the baseline rotation in script.js was -135. Let me double check index.html to see what the SVG looks like.
+        // Actually, if we just set it to rotate(cursorBank deg), let's see if it looks right. I will add the base angle if needed.
+        // But let's check index.html first.
+        cursorSvg.style.transform = `rotate(${cursorBank}deg)`;
+    }
+}
+animateCursorPhysics();
 
 // Update cursor state on scroll too
 window.addEventListener('scroll', () => {
     if (window.scrollY > window.innerHeight * 0.8) {
         document.body.classList.add('show-triangle');
-        if(cursorCanvas) cursorCanvas.style.opacity = '0';
+        if (cursorCanvas) cursorCanvas.style.opacity = '0';
     } else if (!document.body.classList.contains('nav-open')) {
         document.body.classList.remove('show-triangle');
-        if(cursorCanvas) cursorCanvas.style.opacity = '1';
+        if (cursorCanvas) cursorCanvas.style.opacity = '1';
     }
 });
 
@@ -531,17 +386,17 @@ if (gContainer) {
     }
 
     let gWasDragged = false;
-    gContainer.addEventListener('mousedown', e => { 
-        gDragging = true; 
+    gContainer.addEventListener('mousedown', e => {
+        gDragging = true;
         gWasDragged = false;
-        gPrevMouse = { x: e.clientX, y: e.clientY }; 
+        gPrevMouse = { x: e.clientX, y: e.clientY };
     });
-    window.addEventListener('mouseup', () => { 
-        setTimeout(() => gDragging = false, 0); 
+    window.addEventListener('mouseup', () => {
+        setTimeout(() => gDragging = false, 0);
     });
     window.addEventListener('mousemove', e => {
         if (gDragging) {
-            if(Math.abs(e.clientX - gPrevMouse.x) > 2 || Math.abs(e.clientY - gPrevMouse.y) > 2) gWasDragged = true;
+            if (Math.abs(e.clientX - gPrevMouse.x) > 2 || Math.abs(e.clientY - gPrevMouse.y) > 2) gWasDragged = true;
             gTargetRotY += (e.clientX - gPrevMouse.x) * 0.01;
             gTargetRotX += (e.clientY - gPrevMouse.y) * 0.01;
             gPrevMouse = { x: e.clientX, y: e.clientY };
@@ -623,16 +478,43 @@ initSplashCursor('footer-webgl');
 gsap.fromTo('.footer-content', { y: -150 }, { y: 0, ease: "none", scrollTrigger: { trigger: "footer", start: "top bottom", end: "bottom bottom", scrub: true } });
 gsap.to('.footer-large-text', { y: 15, duration: 3, yoyo: true, repeat: -1, ease: "sine.inOut" });
 
+gsap.to('.footer-letter', {
+    y: "0%",
+    opacity: 1,
+    duration: 1.2,
+    stagger: 0.1,
+    ease: "power3.out",
+    scrollTrigger: {
+        trigger: "#footer-section",
+        start: "top center",
+        toggleActions: "play none none reverse"
+    }
+});
+
 // === 9. SCROLL ANIMATIONS ===
 gsap.from('.about-text', { y: 60, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.about-section', start: 'top 75%' } });
 gsap.from('.about-image-container', { y: 80, opacity: 0, duration: 1.4, ease: 'power3.out', scrollTrigger: { trigger: '.about-section', start: 'top 70%' } });
-gsap.from('.work-card', { y: 100, opacity: 0, duration: 1, ease: 'power3.out', stagger: 0.2, scrollTrigger: { trigger: '.works-section', start: 'top 75%' } });
+gsap.from('.service-card', { y: 80, opacity: 0, duration: 1, ease: 'power3.out', stagger: 0.15, scrollTrigger: { trigger: '.services-grid-section', start: 'top 80%' } });
 
-const sigTl = gsap.timeline({ scrollTrigger: { trigger: '.about-section', start: 'top 75%' } });
-sigTl.fromTo('#signature',
-    { strokeDashoffset: 1, fill: 'transparent' },
-    { strokeDashoffset: 0, duration: 3, ease: 'power2.out' }
-).to('#signature', { fill: '#204937', duration: 1 }, "-=1.5");
+// === ABOUT ME — single-sweep hand-drawn reveal ===
+(function initPencilDraw() {
+    const clipRect = document.getElementById('underline-clip-rect');
+    if (!clipRect) return;
+
+    // Start fully hidden
+    clipRect.setAttribute('width', '0');
+
+    gsap.to(clipRect, {
+        attr: { width: 1516 },   // sweep across the full 1516-wide viewBox in one motion
+        duration: 2.2,
+        ease: 'power2.inOut',
+        scrollTrigger: {
+            trigger: '.about-section',
+            start: 'top 72%',
+            toggleActions: 'play none none none'
+        }
+    });
+})();
 
 // === RESIZE ===
 window.addEventListener('resize', () => {
@@ -860,11 +742,11 @@ if (logoMarquee) {
 
     function animateLogoMarquee() {
         requestAnimationFrame(animateLogoMarquee);
-        
+
         // Scroll response
         const scrollY = window.scrollY;
         const delta = scrollY - lastScrollY;
-        currentOffset -= delta * 0.5; 
+        currentOffset -= delta * 0.5;
         lastScrollY = scrollY;
 
         const trackWidth = logoMarquee.scrollWidth / 2;

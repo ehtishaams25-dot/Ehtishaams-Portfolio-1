@@ -11,7 +11,7 @@ export function RecentWorks() {
   return (
     <section id="works" className="ds-section bg-beige text-forest">
       <div className="ds-shell">
-        <SectionHeading kicker="Recent works" title="selected edits with a pulse" />
+        <SectionHeading kicker="Featured projects" title="selected edits with a pulse" />
       </div>
       <div className="overflow-x-auto px-edge pb-4 [scrollbar-width:none]">
         <div className="flex min-w-max gap-5">

@@ -63,7 +63,11 @@ preloaderTl.to('.preloader-counter-container', {
 .to('#preloader', {
     yPercent: -100,
     duration: 1.2,
-    ease: "power4.inOut"
+    ease: "power4.inOut",
+    onComplete: () => {
+        const p = document.getElementById('preloader');
+        if (p) p.style.display = 'none';
+    }
 }, "+=0.2")
 .add(() => {
     lenis.start();
@@ -182,33 +186,60 @@ if (stitchLineBottom) {
     });
 }
 
-// === 5.1. LOGO MARQUEE — scroll-speed modulation ===
+// === 5.1. LOGO MARQUEE — smooth infinite scroll with scroll speed boost ===
 (function initMarquee() {
     const wrapper = document.getElementById('logo-marquee');
     if (!wrapper) return;
-    const BASE_SPEED = 22; // seconds for a full loop at rest
-    const MIN_SPEED = 6; // seconds at max scroll velocity
-    let currentSpeed = BASE_SPEED;
+
+    // Turn off CSS animation so JS has full control over transform position
+    wrapper.style.animation = 'none';
+
+    let xPos = 0;
+    const BASE_SPEED = 0.8; // px per frame at rest
+    let scrollVelocity = 0;
     let lastScrollY = window.scrollY;
+    let halfWidth = wrapper.scrollWidth / 2;
     let raf;
+
+    const updateWidth = () => {
+        halfWidth = wrapper.scrollWidth / 2;
+    };
+    window.addEventListener('load', updateWidth);
+    window.addEventListener('resize', updateWidth);
+    if (window.ResizeObserver) {
+        new ResizeObserver(updateWidth).observe(wrapper);
+    }
 
     function tick() {
         const scrollY = window.scrollY;
-        const velocity = Math.abs(scrollY - lastScrollY); // px/frame
+        const deltaScroll = Math.abs(scrollY - lastScrollY);
         lastScrollY = scrollY;
 
-        // Map velocity → duration (faster scroll = lower duration = faster strip)
-        const targetSpeed = Math.max(MIN_SPEED, BASE_SPEED - velocity * 0.4);
-        currentSpeed += (targetSpeed - currentSpeed) * 0.08; // smooth lerp
+        // Smoothly blend scroll velocity bonus so it gently speeds up on scroll without reversing
+        const targetBonus = Math.min(deltaScroll * 0.25, 3.5);
+        scrollVelocity += (targetBonus - scrollVelocity) * 0.1;
 
-        wrapper.style.setProperty('--marquee-speed', `${currentSpeed.toFixed(2)}s`);
+        // Total movement per frame (ALWAYS positive to move left smoothly, never backwards!)
+        const moveSpeed = BASE_SPEED + scrollVelocity;
+        xPos -= moveSpeed;
+
+        // Seamless loop wrap-around
+        if (halfWidth > 0 && Math.abs(xPos) >= halfWidth) {
+            xPos += halfWidth;
+        }
+
+        wrapper.style.transform = `translate3d(${xPos}px, 0, 0)`;
         raf = requestAnimationFrame(tick);
     }
 
     // Only run the loop when the marquee is visible
     const observer = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) { raf = requestAnimationFrame(tick); }
-        else { cancelAnimationFrame(raf); }
+        if (entries[0].isIntersecting) {
+            lastScrollY = window.scrollY;
+            raf = requestAnimationFrame(tick);
+        } else {
+            cancelAnimationFrame(raf);
+        }
     }, { threshold: 0 });
     observer.observe(wrapper);
 })();
@@ -259,6 +290,19 @@ if (rwSlider) {
             item.addEventListener('mouseleave', () => {
                 v.pause();
             });
+
+            const mobileVideoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (window.innerWidth <= 768 || 'ontouchstart' in window) {
+                        if (entry.isIntersecting) {
+                            v.play().catch(() => { });
+                        } else {
+                            v.pause();
+                        }
+                    }
+                });
+            }, { threshold: 0.5 });
+            mobileVideoObserver.observe(item);
         }
     });
 
@@ -398,26 +442,39 @@ const videoFiles = [
 const track = document.getElementById('track');
 const viewport = document.getElementById('viewport');
 if (track && viewport) {
+    const videoSection = document.getElementById('video-scroll') || viewport;
     const cardW = 320, gap = 20, step = cardW + gap, totalOrig = videoFiles.length, setW = totalOrig * step, copies = 3, totalCards = totalOrig * copies, cardsData = [];
     function loopSeg(v, s, e) { v.addEventListener('timeupdate', () => { if (v.currentTime >= e) v.currentTime = s; }); v.currentTime = s; }
     for (let i = 0; i < totalCards; i++) {
         const oi = i % totalOrig, card = document.createElement('div'); card.className = 'video-card';
-        const v = document.createElement('video'); v.src = videoFiles[oi]; v.loop = true; v.controls = true; v.playsInline = true;
+        const v = document.createElement('video'); v.src = videoFiles[oi]; v.preload = 'metadata'; v.loop = true; v.controls = true; v.playsInline = true; v.muted = true;
         if (oi === 0) loopSeg(v, 12, 18);
         card.appendChild(v); track.appendChild(card);
         const ox = i - Math.floor(totalCards / 2); cardsData.push({ element: card, video: v, initialX: ox * step, isHovered: false, currentVolume: 0 });
-        card.addEventListener('mouseenter', () => cardsData[i].isHovered = true);
-        card.addEventListener('mouseleave', () => cardsData[i].isHovered = false);
+        card.addEventListener('mouseenter', () => {
+            cardsData[i].isHovered = true;
+            cardsData[i].video.muted = false;
+        });
+        card.addEventListener('mouseleave', () => {
+            cardsData[i].isHovered = false;
+        });
     }
     let vSX = 0, vTX = 0, vV = 0, vD = false, vLM = 0;
-    viewport.addEventListener('mousedown', e => { vD = true; vLM = e.clientX; cardsData.forEach(c => { c.video.muted = false; c.video.play().catch(() => { }); }); }, { once: true });
     viewport.addEventListener('mousedown', e => { vD = true; vLM = e.clientX; });
     window.addEventListener('mousemove', e => { if (!vD) return; const dx = e.clientX - vLM; vTX += dx; vV = dx; vLM = e.clientX; });
     window.addEventListener('mouseup', () => { vD = false; });
+    viewport.addEventListener('touchstart', e => { vD = true; vLM = e.touches[0].clientX; }, { passive: true });
+    window.addEventListener('touchmove', e => { if (!vD) return; const dx = e.touches[0].clientX - vLM; vTX += dx; vV = dx; vLM = e.touches[0].clientX; }, { passive: true });
+    window.addEventListener('touchend', () => { vD = false; });
     function updateCarousel() {
         requestAnimationFrame(updateCarousel);
         if (!vD) { vV *= 0.95; vTX += vV; } vSX += (vTX - vSX) * 0.15;
         if (vSX > setW) { vSX -= setW; vTX -= setW; } else if (vSX < -setW) { vSX += setW; vTX += setW; }
+
+        const rect = videoSection.getBoundingClientRect();
+        const buffer = 150;
+        const isSectionVisible = rect.top < window.innerHeight + buffer && rect.bottom > -buffer;
+
         cardsData.forEach(item => {
             let xP = item.initialX + vSX; const mD = setW * 1.5;
             if (xP > mD) xP -= totalCards * step; if (xP < -mD) xP += totalCards * step;
@@ -425,10 +482,24 @@ if (track && viewport) {
             const sat = Math.max(0.1, 1 - (dist * 0.0008)), br = Math.max(0.4, 1 - (dist * 0.0006));
             item.element.style.transform = `translateX(-50%) translateX(${xP}px) translateZ(${tZ}px) rotateY(${rY}deg)`;
             item.element.style.filter = `saturate(${sat}) brightness(${br})`;
-            if (dist > window.innerWidth) { if (!item.video.paused) item.video.pause(); } else { if (item.video.paused) item.video.play().catch(() => { }); }
-            const dV = Math.max(0, 1 - (dist / 800)); const tV = (item.isHovered ? dV : 0) * 0.3;
-            item.currentVolume += (tV - item.currentVolume) * (item.isHovered ? 0.3 : 0.05);
-            item.video.volume = Math.max(0, Math.min(1, item.currentVolume));
+
+            if (!isSectionVisible || dist > window.innerWidth) {
+                if (!item.video.paused) item.video.pause();
+                if (!isSectionVisible) item.isHovered = false;
+                item.currentVolume = 0;
+                item.video.volume = 0;
+                item.video.muted = true;
+            } else {
+                if (item.video.paused) item.video.play().catch(() => { });
+                const dV = Math.max(0, 1 - (dist / 800)); const tV = (item.isHovered ? dV : 0) * 0.3;
+                item.currentVolume += (tV - item.currentVolume) * (item.isHovered ? 0.3 : 0.05);
+                item.video.volume = Math.max(0, Math.min(1, item.currentVolume));
+                if (item.isHovered || item.currentVolume > 0.01) {
+                    item.video.muted = false;
+                } else {
+                    item.video.muted = true;
+                }
+            }
         });
     }
     updateCarousel();
@@ -509,9 +580,34 @@ if (gContainer) {
             gPrevMouse = { x: e.clientX, y: e.clientY };
         }
     });
+    gContainer.addEventListener('touchstart', e => {
+        gDragging = true;
+        gWasDragged = false;
+        gPrevMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+    window.addEventListener('touchend', () => {
+        setTimeout(() => gDragging = false, 0);
+    });
+    window.addEventListener('touchmove', e => {
+        if (gDragging && e.touches[0]) {
+            const tx = e.touches[0].clientX;
+            const ty = e.touches[0].clientY;
+            if (Math.abs(tx - gPrevMouse.x) > 2 || Math.abs(ty - gPrevMouse.y) > 2) gWasDragged = true;
+            gTargetRotY += (tx - gPrevMouse.x) * 0.01;
+            gTargetRotX += (ty - gPrevMouse.y) * 0.01;
+            gPrevMouse = { x: tx, y: ty };
+        }
+    }, { passive: true });
+
+    let isGlobeVisible = true;
+    const globeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => isGlobeVisible = entry.isIntersecting);
+    }, { threshold: 0 });
+    globeObserver.observe(gContainer);
 
     function animateGlobe() {
         requestAnimationFrame(animateGlobe);
+        if (!isGlobeVisible || document.hidden) return;
         if (!gDragging) gTargetRotY -= 0.002;
         gRotX += (gTargetRotX - gRotX) * 0.1; gRotY += (gTargetRotY - gRotY) * 0.1;
         rotHistory.unshift({ x: gRotX, y: gRotY });
@@ -622,8 +718,8 @@ if (cardsContainer) {
         }
     });
 }
-gsap.from('.services-title', { y: 50, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.services-section', start: 'top 80%' } });
-gsap.from('.service-card', { y: 80, opacity: 0, duration: 1.2, stagger: 0.15, ease: 'power3.out', scrollTrigger: { trigger: '.services-grid', start: 'top 80%' } });
+gsap.from('.services-title', { y: 50, opacity: 0, duration: 1.2, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-section', start: 'top 80%' } });
+gsap.from('.service-card', { y: 60, opacity: 0, duration: 1.0, stagger: 0.1, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-grid', start: 'top 85%' } });
 
 // === ABOUT ME — single-sweep hand-drawn reveal ===
 (function initPencilDraw() {
@@ -872,28 +968,3 @@ if (curvedTextPath) {
     curvedTextPath.setAttribute('startOffset', baseOffset + 'px');
 }
 
-// === 12. LOGO MARQUEE SCROLL ===
-const logoMarquee = document.getElementById('logo-marquee');
-if (logoMarquee) {
-    logoMarquee.style.animation = 'none';
-    let currentOffset = 0;
-    let lastScrollY = window.scrollY;
-
-    function animateLogoMarquee() {
-        requestAnimationFrame(animateLogoMarquee);
-
-        // Scroll response
-        const scrollY = window.scrollY;
-        const delta = scrollY - lastScrollY;
-        currentOffset -= delta * 0.5;
-        lastScrollY = scrollY;
-
-        const trackWidth = logoMarquee.scrollWidth / 2;
-        if (trackWidth > 0) {
-            let normalizedOffset = currentOffset % trackWidth;
-            if (normalizedOffset > 0) normalizedOffset -= trackWidth;
-            logoMarquee.style.transform = `translateX(${normalizedOffset}px)`;
-        }
-    }
-    animateLogoMarquee();
-}

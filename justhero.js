@@ -71,8 +71,8 @@ scene.add(new THREE.AmbientLight(0xffffff, 1.5));
 const dirLight = new THREE.DirectionalLight(0xffffff, 2); dirLight.position.set(0, 50, 50); scene.add(dirLight);
 const pLight = new THREE.PointLight(0xdcb558, 3, 2000); scene.add(pLight);
 
-// Stars — time-warp hyperspace (8000)
-const SN = 8000, sGeo = new THREE.CylinderGeometry(0.25, 0.25, 1, 6); sGeo.rotateX(Math.PI / 2);
+// Stars — time-warp hyperspace
+const SN = isMobile ? 1500 : 4000, sGeo = new THREE.CylinderGeometry(0.25, 0.25, 1, 6); sGeo.rotateX(Math.PI / 2);
 const sIM = new THREE.InstancedMesh(sGeo, new THREE.MeshBasicMaterial({ color: 0xefe7d8 }), SN);
 const dum = new THREE.Object3D(), sArr = [];
 for (let i = 0; i < SN; i++)sArr.push({ x: (Math.random() - 0.5) * 800, y: (Math.random() - 0.5) * 800, z: -Math.random() * 5000, v: 0.4 + Math.random() * 2 });
@@ -243,7 +243,7 @@ if (heroSectionToObserve) {
 
 function tick() {
     requestAnimationFrame(tick);
-    if (!isHeroVisible) return;
+    if (!isHeroVisible || document.hidden) return;
     const tgt = 1.0 * speedMult; curSpeed += (tgt - curSpeed) * 0.03;
     cam.position.z -= curSpeed;
     cam.position.x += (targetX * 55 - cam.position.x) * 0.025;

@@ -842,5 +842,29 @@ function initSplashCursor(containerId) {
         updatePointerUpData(pointers[0]);
     });
 
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const wasActive = isActive;
+            isActive = entry.isIntersecting && !document.hidden;
+            if (!wasActive && isActive) {
+                lastUpdateTime = Date.now();
+                updateFrame();
+            }
+        });
+    }, { threshold: 0 });
+    observer.observe(container);
+
+    document.addEventListener('visibilitychange', () => {
+        const wasActive = isActive;
+        const rect = container.getBoundingClientRect();
+        const isVisible = (rect.top < window.innerHeight && rect.bottom > 0) && !document.hidden;
+        isActive = isVisible;
+        if (!wasActive && isActive) {
+            lastUpdateTime = Date.now();
+            updateFrame();
+        }
+    });
+
     updateFrame();
 }
+

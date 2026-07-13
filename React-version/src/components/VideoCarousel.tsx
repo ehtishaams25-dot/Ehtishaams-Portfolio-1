@@ -1,5 +1,5 @@
 import type { CSSProperties, PointerEvent } from 'react'
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { shortFormVideos } from '../data/portfolio'
 import { SectionHeading } from './SectionHeading'
 
@@ -11,8 +11,39 @@ type DragState = {
 
 export function VideoCarousel() {
   const [drag, setDrag] = useState<DragState>({ active: false, startX: 0, offset: 0 })
+  const sectionRef = useRef<HTMLElement | null>(null)
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([])
   const cards = useMemo(() => [...shortFormVideos, ...shortFormVideos], [])
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            videoRefs.current.forEach((video) => {
+              if (video && video.paused) {
+                video.play().catch(() => undefined)
+              }
+            })
+          } else {
+            videoRefs.current.forEach((video) => {
+              if (video) {
+                if (!video.paused) video.pause()
+                video.muted = true
+              }
+            })
+          }
+        })
+      },
+      { rootMargin: '150px 0px 150px 0px', threshold: 0.01 },
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
 
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -37,7 +68,7 @@ export function VideoCarousel() {
   }
 
   return (
-    <section id="video-scroll" className="ds-section overflow-hidden bg-void text-beige">
+    <section ref={sectionRef} id="video-scroll" className="ds-section overflow-hidden bg-void text-beige">
       <div className="ds-shell">
         <SectionHeading kicker="Short-form edits" title="drag through the gallery" tone="light" />
       </div>

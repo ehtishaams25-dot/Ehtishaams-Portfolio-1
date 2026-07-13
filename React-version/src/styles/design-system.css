@@ -27,7 +27,7 @@
   --ds-color-mist: #f7f1e6;
   --ds-content: min(100% - calc(var(--ds-edge) * 2), 1440px);
   --ds-edge: clamp(1.25rem, 5vw, 6rem);
-  --ds-section-y: clamp(5rem, 10vw, 9rem);
+  --ds-section-y: clamp(7.5rem, 10vw, 9.5rem);
   --ds-ease: cubic-bezier(0.22, 1, 0.36, 1);
   font-family: var(--font-sans);
   color: var(--ds-color-beige);

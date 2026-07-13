@@ -344,7 +344,7 @@ main {
 /* ===== HERO SECTION ===== */
 .hero-section {
     position: relative;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     overflow: hidden;
     background: var(--dark-void);
@@ -526,7 +526,7 @@ body.nav-open .chromatic-aberration {
 
 /* ===== STITCHING STRIP ===== */
 .stitch-strip {
-    width: 100vw;
+    width: 100%;
     height: 28px;
     background: var(--forest-green);
     position: relative;
@@ -552,7 +552,7 @@ body.nav-open .chromatic-aberration {
 /* ===== LIGHT SECTION (About + Works) ===== */
 .light-section {
     background: var(--beige);
-    width: 100vw;
+    width: 100%;
     position: relative;
     z-index: 5;
 }
@@ -584,7 +584,7 @@ body.nav-open .chromatic-aberration {
     align-items: center;
     gap: 6rem;
     flex-shrink: 0;
-    padding-right: 8rem;
+    padding-right: 6rem;
 }
 
 .marquee-logo {
@@ -615,13 +615,15 @@ body.nav-open .chromatic-aberration {
 
 /* ===== ABOUT ME SECTION ===== */
 .about-section {
-    padding: 8rem var(--content-margin);
+    min-height: 100vh;
+    padding: 6rem var(--content-margin);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6rem;
     max-width: var(--max-width);
     margin: 0 auto;
     align-items: center;
+    align-content: center;
 }
 
 .about-text {
@@ -688,12 +690,13 @@ body.nav-open .chromatic-aberration {
 
 /* ===== RECENT WORKS (Carousel) ===== */
 .recent-works-section {
-    width: 100vw;
-    padding: clamp(3rem, 6vh, 6rem) 0 4rem 0;
+    width: 100%;
+    min-height: 100vh;
+    padding: clamp(5rem, 8vh, 6rem) 0;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 .recent-works-title {
@@ -954,11 +957,15 @@ body.show-triangle .custom-cursor {
    ========================================= */
 .services-section {
     width: 100%;
+    min-height: 100vh;
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 6rem var(--content-margin);
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .services-title {
@@ -968,7 +975,7 @@ body.show-triangle .custom-cursor {
     color: var(--forest-green);
     font-weight: 400;
     font-style: normal;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     line-height: 1;
     letter-spacing: -0.02em;
 }
@@ -978,6 +985,7 @@ body.show-triangle .custom-cursor {
     gap: 1.5rem;
     align-items: stretch;
     position: relative;
+    width: 100%;
 }
 
 .service-card {
@@ -997,6 +1005,7 @@ body.show-triangle .custom-cursor {
     cursor: none !important;
     text-decoration: none;
     color: inherit;
+    margin: 0;
 }
 
 .service-card::before {
@@ -1085,7 +1094,7 @@ body.show-triangle .custom-cursor {
 
 /* ===== STITCHING STRIP BOTTOM ===== */
 .stitch-strip-bottom {
-    width: 100vw;
+    width: 100%;
     height: 28px;
     background: var(--forest-green);
     position: relative;
@@ -1109,7 +1118,7 @@ body.show-triangle .custom-cursor {
 
 /* ===== MOTION GALLERY (Dark section) ===== */
 .video-scroll-section {
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     overflow: hidden;
     background: var(--dark-void);
@@ -1121,7 +1130,7 @@ body.show-triangle .custom-cursor {
     position: absolute;
     top: 50%;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 600px;
     transform: translateY(-50%);
     perspective: 1500px;
@@ -1204,8 +1213,8 @@ body.show-triangle .custom-cursor {
 /* ===== TESTIMONIALS ===== */
 .testimonial-section {
 
-    width: 100vw;
-    padding: 6rem 0;
+    width: 100%;
+    padding: 8rem 0 6rem 0;
     background-color: var(--dark-void);
     color: #fff;
     display: flex;
@@ -1325,7 +1334,7 @@ body.show-triangle .custom-cursor {
 
 /* ===== SCROLL MARQUEE ===== */
 .curved-marquee-wrapper {
-    width: 100vw;
+    width: 100%;
     height: 40vh;
     background-color: var(--dark-void);
     position: relative;
@@ -1369,7 +1378,7 @@ body.show-triangle .custom-cursor {
 /* ===== FOOTER ===== */
 footer {
     position: relative;
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
     z-index: 1;
     background-color: var(--beige);
@@ -1512,7 +1521,7 @@ footer {
 /* ===== GLOBE SECTION ===== */
 .globe-section {
     position: relative;
-    width: 100vw;
+    width: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -1629,40 +1638,172 @@ footer {
 }
 
 @media (max-width: 768px) {
-
     .tv-overlay,
     .chromatic-aberration {
         display: none !important;
     }
 
+    .glass-nav {
+        padding: 0.6rem 1.4rem;
+        width: 92%;
+        max-width: 420px;
+        gap: 0.5rem;
+    }
+
+    .glass-nav a {
+        font-size: 0.82rem;
+    }
+
+    .glass-nav a.nav-logo-text {
+        font-size: 1.5rem;
+    }
+
+    .hero-header {
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .hero-hud {
+        gap: 1rem;
+    }
+
     .hero-title {
-        font-size: 3.5rem;
+        font-size: clamp(2.8rem, 11vw, 4.5rem);
     }
 
-    .nav-overlay {
-        width: 100vw;
-        min-width: unset;
+    .score-number {
+        font-size: 1.3rem;
     }
 
-    .works-grid {
-        grid-template-columns: 1fr;
+    .lives-box {
+        font-size: 0.95rem;
+    }
+
+    .marquee-logo {
+        height: 38px;
+    }
+
+    .marquee-track {
+        gap: 3rem;
+        padding-right: 3rem;
     }
 
     .about-section {
-        padding: 5rem var(--content-margin);
+        padding: 4rem var(--content-margin);
+        gap: 2.5rem;
+    }
+
+    .about-heading {
+        font-size: clamp(2.8rem, 8vw, 4rem);
+    }
+
+    .about-image-container {
+        max-width: 280px;
+    }
+
+    .services-section {
+        padding: 4rem var(--content-margin);
+    }
+
+    .service-card {
+        padding: 1.75rem 1.5rem;
+    }
+
+    .service-card h3 {
+        font-size: 1.85rem;
+    }
+
+    .carousel-item {
+        width: 86vw;
+        height: 62vh;
+        min-height: 360px;
+        max-height: 520px;
+    }
+
+    .dzinr-content {
+        padding: 1.25rem 1.25rem;
+        gap: 0.8rem;
+    }
+
+    .dzinr-tags {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        font-size: 0.65rem;
+    }
+
+    .dzinr-title {
+        font-size: clamp(1.4rem, 6vw, 2.2rem);
+    }
+
+    .carousel-viewport {
+        height: 480px;
+    }
+
+    .video-card {
+        width: 240px;
+        height: 426px;
+        border-radius: 16px;
+    }
+
+    .testimonial-card {
+        width: min(300px, 85vw);
+        min-width: min(300px, 85vw);
+        padding: 1.25rem;
+    }
+
+    footer {
+        padding-top: 5rem;
     }
 
     .footer-large-text {
-        font-size: 4rem;
+        font-size: clamp(2.8rem, 11vw, 4.5rem);
     }
 
     .globe-container {
-        width: 280px;
-        height: 280px;
+        width: 260px;
+        height: 260px;
+    }
+
+    .footer-bottom-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+        padding: 1rem 1.5rem;
     }
 
     .hero-peripheral-left,
     .hero-peripheral-right {
         width: 8vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .glass-nav {
+        padding: 0.45rem 1rem;
+        width: 95%;
+        max-width: 360px;
+        gap: 0.35rem;
+    }
+
+    .glass-nav a {
+        font-size: 0.75rem;
+    }
+
+    .glass-nav a.nav-logo-text {
+        font-size: 1.35rem;
+    }
+
+    .hero-title {
+        font-size: clamp(2.3rem, 12vw, 3.5rem);
+    }
+
+    .carousel-item {
+        width: 90vw;
+        min-height: 340px;
+    }
+
+    .video-card {
+        width: 220px;
+        height: 390px;
     }
 }

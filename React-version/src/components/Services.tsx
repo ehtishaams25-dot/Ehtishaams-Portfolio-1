@@ -5,9 +5,9 @@ const icons = [Clapperboard, Sparkles, Image, Settings2]
 
 export function Services() {
   return (
-    <section id="services" className="ds-section bg-beige text-forest">
+    <section id="services" className="ds-section min-h-screen flex flex-col justify-center bg-beige text-forest">
       <div className="ds-shell">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 items-stretch">
           {services.map((service, index) => {
             const Icon = icons[index]
             return (

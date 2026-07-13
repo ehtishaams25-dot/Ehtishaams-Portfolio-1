@@ -13,30 +13,38 @@ export const designNotes = {
 
 export const workItems = [
   {
+    year: '2025',
+    type: 'Event Edit',
+    title: 'TigerIOT Event',
+    href: 'https://drive.google.com/file/d/1mbNburZAMzfEcRR09cl9ektSndN9T2F0/view?usp=drive_link',
+    video:
+      'https://res.cloudinary.com/devodfvpg/video/upload/v1777836048/TigerIOT_cover_video_1_ywkz21.mp4',
+    palette: 'forest',
+  },
+  {
     year: '2024',
     type: 'Brand Film',
     title: 'Brand intro video',
-    href: 'https://drive.google.com/',
+    href: 'https://drive.google.com/file/d/1cyCv7dutRQnr6RI7tqZoqA3K4v6jxq4M/view?usp=drive_link',
     video:
       'https://res.cloudinary.com/devodfvpg/video/upload/v1777835519/Digivero_case_study_video_cover_1_qvbpgb.mp4',
-    palette: 'forest',
+    palette: 'void',
   },
   {
     year: '2025',
     type: 'AI Story',
     title: 'AI Documentary',
-    href: 'https://drive.google.com/',
+    href: 'https://drive.google.com/file/d/1CUhliks4maFRJFGmqpItmx0mW_E58b-G/view?usp=drive_link',
     video: 'https://res.cloudinary.com/devodfvpg/video/upload/v1777835546/Chel_vid_1_iyeix3.mp4',
-    palette: 'void',
+    palette: 'forest',
   },
   {
-    year: '2025',
-    type: 'Event Edit',
-    title: 'TigerIOT Event',
-    href: 'https://drive.google.com/',
-    video:
-      'https://res.cloudinary.com/devodfvpg/video/upload/v1777836048/TigerIOT_cover_video_1_ywkz21.mp4',
-    palette: 'forest',
+    year: '2026',
+    type: 'Brand Film',
+    title: 'Brands that speak',
+    href: 'https://drive.google.com/file/d/1F5OMD7_nWuWCP3lMjq8RSkbYYkLZD2sb/view?usp=drive_link',
+    video: '/assets/Brands%20that%20speak%202.mp4',
+    palette: 'void',
   },
 ]
 

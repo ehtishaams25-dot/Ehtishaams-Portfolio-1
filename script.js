@@ -146,13 +146,19 @@ cursorCanvas.width = window.innerWidth; cursorCanvas.height = window.innerHeight
 let trailParticles = [], ambientParticles = [];
 let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 for (let i = 0; i < 100; i++) ambientParticles.push({ x: Math.random() * cursorCanvas.width, y: Math.random() * cursorCanvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, size: Math.random() * 1.5 + 0.5 });
-window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; trailParticles.push({ x: mouse.x, y: mouse.y, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2, life: 1.0, size: Math.random() * 2 + 1 }); });
+const isMobileCursorDisabled = () => window.innerWidth <= 768 || window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+window.addEventListener('mousemove', e => {
+    if (isMobileCursorDisabled()) return;
+    mouse.x = e.clientX; mouse.y = e.clientY; trailParticles.push({ x: mouse.x, y: mouse.y, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2, life: 1.0, size: Math.random() * 2 + 1 });
+});
 function animateCursor() {
     cCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    cCtx.fillStyle = "rgba(220,181,88,0.35)";
-    for (let p of ambientParticles) { p.x += p.vx; p.y += p.vy; if (p.x < 0) p.x = cursorCanvas.width; if (p.x > cursorCanvas.width) p.x = 0; if (p.y < 0) p.y = cursorCanvas.height; if (p.y > cursorCanvas.height) p.y = 0; let dx = mouse.x - p.x, dy = mouse.y - p.y, d = Math.sqrt(dx * dx + dy * dy); if (d < 120) { let f = (120 - d) / 120; p.x -= (dx / d) * f * 2; p.y -= (dy / d) * f * 2; } cCtx.beginPath(); cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); cCtx.fill(); }
-    cCtx.beginPath(); cCtx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2); cCtx.fillStyle = "rgba(220,181,88,0.8)"; cCtx.shadowBlur = 15; cCtx.shadowColor = "#dcb558"; cCtx.fill(); cCtx.shadowBlur = 0;
-    for (let i = 0; i < trailParticles.length; i++) { let p = trailParticles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.02; if (p.life <= 0) { trailParticles.splice(i, 1); i--; continue; } cCtx.beginPath(); cCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); cCtx.fillStyle = `rgba(220,181,88,${p.life})`; cCtx.fill(); }
+    if (!isMobileCursorDisabled()) {
+        cCtx.fillStyle = "rgba(220,181,88,0.35)";
+        for (let p of ambientParticles) { p.x += p.vx; p.y += p.vy; if (p.x < 0) p.x = cursorCanvas.width; if (p.x > cursorCanvas.width) p.x = 0; if (p.y < 0) p.y = cursorCanvas.height; if (p.y > cursorCanvas.height) p.y = 0; let dx = mouse.x - p.x, dy = mouse.y - p.y, d = Math.sqrt(dx * dx + dy * dy); if (d < 120) { let f = (120 - d) / 120; p.x -= (dx / d) * f * 2; p.y -= (dy / d) * f * 2; } cCtx.beginPath(); cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); cCtx.fill(); }
+        cCtx.beginPath(); cCtx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2); cCtx.fillStyle = "rgba(220,181,88,0.8)"; cCtx.shadowBlur = 15; cCtx.shadowColor = "#dcb558"; cCtx.fill(); cCtx.shadowBlur = 0;
+        for (let i = 0; i < trailParticles.length; i++) { let p = trailParticles[i]; p.x += p.vx; p.y += p.vy; p.life -= 0.02; if (p.life <= 0) { trailParticles.splice(i, 1); i--; continue; } cCtx.beginPath(); cCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); cCtx.fillStyle = `rgba(220,181,88,${p.life})`; cCtx.fill(); }
+    }
     requestAnimationFrame(animateCursor);
 }
 animateCursor();
@@ -361,6 +367,7 @@ let cursorBank = 0;
 })();
 
 document.addEventListener('mousemove', (e) => {
+    if (isMobileCursorDisabled()) return;
     cursorMouseX = e.clientX;
     cursorMouseY = e.clientY;
 
@@ -420,6 +427,7 @@ animateCursorPhysics();
 
 // Update cursor state on scroll too
 window.addEventListener('scroll', () => {
+    if (isMobileCursorDisabled()) return;
     if (window.scrollY > window.innerHeight * 0.8) {
         document.body.classList.add('show-triangle');
         if (cursorCanvas) cursorCanvas.style.opacity = '0';
@@ -516,7 +524,10 @@ const globeLinks = [
 ];
 const gContainer = document.getElementById('globe-container');
 if (gContainer) {
-    const globeElements = [], gRadius = 190;
+    const globeElements = [];
+    function getGRadius() { return Math.min(gContainer.offsetWidth, gContainer.offsetHeight) * 0.38; }
+    let gRadius = getGRadius();
+    window.addEventListener('resize', () => { gRadius = getGRadius(); });
     let gRotX = 0, gRotY = 0, gTargetRotX = 0, gTargetRotY = 0, gDragging = false, gPrevMouse = { x: 0, y: 0 };
     const phi = Math.PI * (3 - Math.sqrt(5));
     const echoLayers = 4, echoDelay = 4, rotHistory = [];
@@ -607,6 +618,20 @@ if (gContainer) {
 
     function animateGlobe() {
         requestAnimationFrame(animateGlobe);
+        // On mobile, CSS flattens the globe into a horizontal list — skip 3D animation
+        if (window.innerWidth <= 768) {
+            // Clear inline styles so CSS can control layout
+            globeElements.forEach(layer => layer.forEach(item => {
+                item.el.style.transform = '';
+                item.el.style.opacity = '';
+                item.el.style.fontSize = '';
+                item.el.style.color = '';
+                item.el.style.filter = '';
+                item.el.style.zIndex = '';
+            }));
+            gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
+            return;
+        }
         if (!isGlobeVisible || document.hidden) return;
         if (!gDragging) gTargetRotY -= 0.002;
         gRotX += (gTargetRotX - gRotX) * 0.1; gRotY += (gTargetRotY - gRotY) * 0.1;
@@ -634,11 +659,13 @@ if (gContainer) {
                     layer0Points.push({ x: cx + x2 * gRadius, y: cy + y1 * gRadius, z: z2 });
                 }
 
-                // Keep sizes proportional to original classes
+                // Keep sizes proportional to original classes, scale with container
                 let baseSize = 1.0;
                 if (item.el.classList.contains('large')) baseSize = 1.5;
                 if (item.el.classList.contains('small')) baseSize = 0.65;
-                item.el.style.fontSize = `${scale * baseSize + (baseSize / 2)}rem`;
+                const containerScale = Math.min(gContainer.offsetWidth, gContainer.offsetHeight) / 500;
+                const scaledSize = (scale * baseSize + (baseSize / 2)) * containerScale;
+                item.el.style.fontSize = `${Math.max(scaledSize, 0.4)}rem`;
 
                 if (layer === 0) {
                     if (item.el.isHovered) {
@@ -754,7 +781,7 @@ window.addEventListener('resize', () => {
 const rawTestimonials = [
     {
         name: "~Ayaz Abdul Mutakabur",
-        image: "https://scontent.cdninstagram.com/v/t51.82787-19/565308928_18056331812636238_5448057324022458822_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_cat=105&ccb=7-5&_nc_sid=f7ccc5&efg=eyJ2ZW5jb2RlX3RhZyI6InByb2ZpbGVfcGljLnd3dy4xMDgwLkMzIn0%3D&_nc_ohc=MS_qjoBpVEMQ7kNvwEtpUD7&_nc_oc=AdpYvOq8m-UWqUC2ao_Jk8BII94m1CuQCTXmw-fcpL2yIH3OZPv5HBRrbpxqtRanNS8xKGIuXEZFiqSpgMwYqv6c&_nc_zt=24&_nc_ht=scontent.cdninstagram.com&_nc_gid=AP1XKxpmC06FDxFnT_L4rg&_nc_ss=7b6a8&oh=00_Af49KL346GJoosMscfRalVdVuVLhY2TazN0jB2uUAAwlrg&oe=6A0E5659",
+        image: "ayzz_profile.jpg",
         text: "Worked with a lot of editors before, Ehtisham is the best of all of them. Most editors just make it look good and send it. He actually cares video perform well, thinks about how the video will go viral, suggests ideas. His editing skills? 🔥. Honestly, I'm a little scared writing this cuz with this review that he'll get some better job & won't work with me, haha. That tells you how good he is.",
         designation: "ayzz.designer"
     },

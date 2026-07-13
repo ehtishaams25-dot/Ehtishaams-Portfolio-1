@@ -779,6 +779,7 @@ body.nav-open .chromatic-aberration {
 .dzinr-img-container {
     width: 100%;
     flex: 1;
+    position: relative;
     background: #000;
     overflow: hidden;
 }
@@ -792,10 +793,24 @@ body.nav-open .chromatic-aberration {
     filter: saturate(0.8);
 }
 
-.carousel-item:hover .dzinr-img-container video {
+.dzinr-img-container iframe {
+    width: 125%;
+    height: 125%;
+    position: absolute;
+    top: -12.5%;
+    left: -12.5%;
+    border: none;
+    pointer-events: none;
+    transition: filter 0.4s ease, transform 0.6s ease;
+    filter: saturate(0.8);
+}
+
+.carousel-item:hover .dzinr-img-container video,
+.carousel-item:hover .dzinr-img-container iframe {
     filter: saturate(1) brightness(1.05);
     transform: scale(1.03);
 }
+
 
 .dzinr-content {
     background-color: var(--card-bg, #fff);
@@ -1435,8 +1450,11 @@ footer {
     background-color: var(--forest-green);
     color: var(--beige);
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     padding: 1rem 2.5rem;
     position: relative;
     z-index: 2;
@@ -1487,7 +1505,9 @@ footer {
     color: var(--dark-void);
     line-height: 0.9;
     text-decoration: none;
-    display: inline-block;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
     transition: color 0.4s, text-shadow 0.4s;
     pointer-events: auto;
 }
@@ -1497,12 +1517,27 @@ footer {
     text-shadow: 0 0 40px rgba(32, 73, 55, 0.4);
 }
 
+.footer-arrow-icon {
+    width: clamp(3rem, 6vw, 6rem);
+    height: clamp(3rem, 6vw, 6rem);
+    flex-shrink: 0;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    transition: transform 0.4s ease;
+}
+
+.footer-large-text:hover .footer-arrow-icon {
+    transform: translate(4px, -4px);
+}
+
 .footer-right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 0.8rem;
     pointer-events: auto;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 .footer-social-link {
@@ -1639,18 +1674,67 @@ footer {
     }
 
     .footer-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 3rem;
+        flex-direction: row;
+        align-items: center;
+        gap: 2rem;
     }
 
     .footer-right {
-        align-items: flex-start;
+        align-items: center;
     }
 
     .globe-container {
         width: 350px;
         height: 350px;
+    }
+}
+
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+    /* Hide custom cursors on mobile / touch devices */
+    #cursor-trail,
+    .custom-cursor {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+
+    /* Restore native cursor on mobile / touch devices */
+    *,
+    a,
+    button,
+    [onclick],
+    input,
+    select,
+    textarea,
+    [role="button"],
+    [draggable],
+    .video-card,
+    #viewport,
+    #track,
+    .carousel-container,
+    .carousel-item,
+    .testimonial-card,
+    .testimonial-track,
+    #globe-container,
+    .globe-link,
+    .nav-close-btn,
+    .menu-btn,
+    .services-track,
+    .services-item {
+        cursor: auto !important;
+    }
+
+    a,
+    button,
+    [onclick],
+    [role="button"],
+    .video-card,
+    .carousel-item,
+    .globe-link,
+    .nav-close-btn,
+    .menu-btn {
+        cursor: pointer !important;
     }
 }
 
@@ -1769,24 +1853,169 @@ footer {
         padding: 1.25rem;
     }
 
+    /* ---- CURVED MARQUEE RIBBON ---- */
+    .curved-marquee-wrapper {
+        width: 100%;
+        height: 160px;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--dark-void);
+    }
+
+    .curved-marquee-sticky {
+        position: relative;
+        width: 100%;
+        height: 160px;
+    }
+
+    .curved-marquee-svg {
+        width: 100%;
+        height: 160px;
+        min-width: 100%;
+    }
+
+    .curved-marquee-svg text {
+        font-size: 56px;
+    }
+
+    /* ---- FOOTER MOBILE REDESIGN ---- */
     footer {
-        padding-top: 5rem;
+        padding-top: 2rem;
+        min-height: calc(100vh - 160px);
+        background-color: var(--beige);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        overflow: hidden;
+        gap: 0;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        flex-grow: 1;
+        width: 100%;
+        padding: 2rem var(--content-margin);
+    }
+
+    .footer-left {
+        width: 100%;
+        text-align: center;
     }
 
     .footer-large-text {
-        font-size: clamp(2.8rem, 11vw, 4.5rem);
+        font-family: 'Instrument Serif', serif;
+        font-size: clamp(2.8rem, 11vw, 3.8rem);
+        color: var(--dark-void);
+        line-height: 1;
+        text-decoration: none;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .footer-large-text span {
+        display: inline;
+    }
+
+    .footer-arrow-icon {
+        width: clamp(2rem, 7vw, 2.6rem);
+        height: clamp(2rem, 7vw, 2.6rem);
+        opacity: 0.8;
+        flex-shrink: 0;
+    }
+
+    /* Hide 3D globe canvas on mobile, show stylish pill-badge social links */
+    .footer-right {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .globe-container {
-        width: 260px;
-        height: 260px;
+        width: 100%;
+        max-width: 380px;
+        height: auto;
+        min-height: 0;
+        perspective: none;
+        border-radius: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .globe-container canvas {
+        display: none !important;
+    }
+
+    .globe-word {
+        position: relative !important;
+        transform: none !important;
+        opacity: 0.8 !important;
+        filter: none !important;
+        color: var(--dark-void) !important;
+        font-family: 'Instrument Sans', sans-serif !important;
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        text-decoration: none !important;
+        padding: 0.45rem 0.9rem;
+        border-radius: 100px;
+        border: 1px solid rgba(3, 6, 4, 0.18);
+        background: rgba(3, 6, 4, 0.03);
+        transition: all 0.3s ease !important;
+    }
+
+    .globe-word:hover,
+    .globe-word:active {
+        opacity: 1 !important;
+        background: var(--dark-void) !important;
+        color: var(--beige) !important;
+        border-color: var(--dark-void);
+    }
+
+    /* Hide echo layers (layer > 0) */
+    .globe-word:not([href]) {
+        display: none !important;
     }
 
     .footer-bottom-bar {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: center;
         gap: 0.5rem;
-        text-align: center;
-        padding: 1rem 1.5rem;
+        padding: 0.85rem 1.2rem;
+        width: 100%;
+        margin: 0;
+        border-radius: 16px 16px 0 0;
+    }
+
+    .footer-bar-logo {
+        font-size: 1.25rem;
+    }
+
+    .footer-bar-message {
+        font-size: clamp(0.68rem, 2.2vw, 0.85rem);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .footer-bar-top {
+        font-size: clamp(0.72rem, 2.3vw, 0.85rem);
+        white-space: nowrap;
     }
 
     .hero-peripheral-left,
@@ -1823,5 +2052,25 @@ footer {
     .video-card {
         width: 220px;
         height: 390px;
+    }
+
+    .footer-bottom-bar {
+        padding: 0.85rem 1rem;
+        width: 100%;
+        margin: 0;
+        gap: 0.35rem;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .footer-bar-logo {
+        font-size: 1.15rem;
+    }
+
+    .footer-bar-message {
+        font-size: 0.65rem;
+    }
+
+    .footer-bar-top {
+        font-size: 0.7rem;
     }
 }

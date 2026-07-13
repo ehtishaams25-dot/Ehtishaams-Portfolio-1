@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Premium Features</title>
+    <!-- Instrument Sans and Instrument Serif fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #204937;
+            --gold: #dcb558;
+            --beige: #efe7d8;
+            --dark-void: #030604;
+
+            --bg-color: var(--dark-void);
+            --card-bg: var(--forest-green);
+            --card-border: rgba(239, 231, 216, 0.15);
+            --primary-accent: var(--gold);
+            --text-main: var(--beige);
+            --text-muted: rgba(239, 231, 216, 0.75);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Instrument Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 200vh; /* Extra height to scroll and test navbar */
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           Grain Texture Overlay
+           ========================================= */
+        .grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* =========================================
+           Floating Glassmorphic Navbar
+           ========================================= */
+        .glass-nav {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 500px;
+            padding: 0.8rem 2.5rem;
+            background: rgba(239, 231, 216, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 231, 216, 0.15);
+            border-radius: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .glass-nav a:hover {
+            color: var(--primary-accent);
+        }
+
+        /* =========================================
+           Ambient Glows
+           ========================================= */
+        .ambient-glow {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80vw;
+            height: 50vh;
+            background: radial-gradient(circle, rgba(220, 181, 88, 0.12) 0%, rgba(0,0,0,0) 65%);
+            filter: blur(60px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 12rem 2rem 4rem; /* Top padding to clear navbar */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================================
+           Bento Box Cards Layout (Same Level)
+           ========================================= */
+        .services-grid {
+            display: flex;
+            gap: 1.5rem;
+            align-items: stretch; /* Keeps cards exactly on the same level and matching height */
+        }
+
+        .service-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1.25rem;
+            padding: 2.5rem 2rem;
+            flex: 1; /* Makes cards take equal width */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        border-color 0.3s ease, 
+                        box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle Inner Glow on Hover */
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(220, 181, 88, 0.15), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(220, 181, 88, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(220, 181, 88, 0.1);
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card-icon {
+            color: var(--primary-accent);
+            width: 54px;
+            height: 54px;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .service-card h3 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.4rem;
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 0.75rem;
+            color: var(--primary-accent);
+            letter-spacing: -0.5px;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        /* =========================================
+           Rotating Typography Stamp Cursor Wrapper
+           ========================================= */
+        .stamp-wrapper {
+            position: fixed;
+            bottom: 2.5rem;
+            right: 2.5rem;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: none; /* Hide default cursor so the stamp becomes the cursor when hovered */
+        }
+
+        .stamp-container {
+            width: 140px;
+            height: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* Let wrapper handle mouse interaction */
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: absolute;
+        }
+
+        .stamp-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin 12s linear infinite;
+        }
+
+        .stamp-text svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--text-main);
+            letter-spacing: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .stamp-icon {
+            color: var(--primary-accent);
+            width: 32px;
+            height: 32px;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .services-grid {
+                flex-direction: column;
+            }
+            .service-card {
+                width: 100%;
+            }
+            .stamp-wrapper {
+                bottom: 1.5rem;
+                right: 1.5rem;
+                width: 100px;
+                height: 100px;
+            }
+            .stamp-container {
+                width: 90px;
+                height: 90px;
+            }
+            .stamp-icon { width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Grain overlay -->
+    <div class="grain"></div>
+
+    <!-- Floating Glassmorphic Navbar -->
+    <nav class="glass-nav">
+        <a href="#" style="font-family: 'Instrument Serif', serif; font-size: 1.8rem; font-style: italic; color: var(--primary-accent);">es.</a>
+        <a href="#">Work</a>
+        <a href="#">Services</a>
+        <a href="#">About</a>
+        <a href="#">Let's talk</a>
+    </nav>
+
+    <div class="container">
+        <!-- Ambient glow -->
+        <div class="ambient-glow"></div>
+
+        <!-- Staggered Bento Cards turned Level Grid -->
+        <div class="services-grid" id="cards-container">
+            
+            <!-- Card 1 -->
+            <div class="service-card">
+                <div class="card-content">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.07 4.93a3.5 3.5 0 0 0-4.95 0L3.5 15.54a2.5 2.5 0 0 0-.7 1.41l-.77 4.25a1 1 0 0 0 1.16 1.16l4.25-.77a2.5 2.5 0 0 0 1.41-.7L19.07 9.88a3.5 3.5 0 0 0 0-4.95ZM5.83 17.5l-1.42 1.42.26-1.42 1.16-1.16v1.16ZM17.66 8.46l-8.5 8.5-1.41-1.41 8.5-8.5 1.41 1.41Z"/>
+                    </svg>
+                    <h3>Logo<br>Design</h3>
+                    <p>We make logos that feel right. Not just good-looking but meaningful, memorable and built to last for your brand.</p>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="service-card">
+                <div class="card-content">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 17h18v2H3v-2Zm18-7-2.3 5H5.3L3 10l5.5 3.5L12 6l3.5 7.5L21 10Z"/>
+                    </svg>
+                    <h3>Brand Identity<br>Development</h3>
+                    <p>A brand is more than a logo. We help you show up the same way everywhere - Online, offline and everything between.</p>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="service-card">
+                <div class="card-content">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7 3h10v3h3v6h-3v9H7v-9H4V6h3V3Zm2 2v1h6V5H9Zm-3 3v2h12V8H6Zm3 4v7h6v-7H9Z"/>
+                    </svg>
+                    <h3>Packaging<br>Design</h3>
+                    <p>Good packaging tells a story before anyone reads a word. We design packs that stand out, feel great and connect.</p>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="service-card">
+                <div class="card-content">
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v2h16V6H4Zm0 4v8h16v-8H4Zm3 2h6v2H7v-2Z"/>
+                        <path d="M15 15l2 5 2-2 3 2-1-4 3-1-9-3z" fill="var(--primary-accent)"/>
+                    </svg>
+                    <h3>Website Design<br>& Development</h3>
+                    <p>We build websites that look good and work better. Fast, responsive, and designed to turn visitors into customers.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Rotating Typography Stamp as Custom Hover Cursor -->
+    <div class="stamp-wrapper" id="stampWrapper">
+        <div class="stamp-container" id="stampContainer">
+            <div class="stamp-text">
+                <svg viewBox="0 0 100 100">
+                    <path id="circlePath" d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
+                    <text>
+                        <textPath href="#circlePath" startOffset="0%">
+                            LET'S TALK • LET'S TALK • LET'S TALK • 
+                        </textPath>
+                    </text>
+                </svg>
+            </div>
+            <svg class="stamp-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2l2.4 7.4h7.6l-6.1 4.5 2.3 7.6-6.2-4.6-6.2 4.6 2.3-7.6-6.1-4.5h7.6z"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Interactive mouse glow effect on cards & Stamp cursor handler -->
+    <script>
+        // Card hover glow effect
+        document.getElementById("cards-container").onmousemove = e => {
+            for(const card of document.getElementsByClassName("service-card")) {
+                const rect = card.getBoundingClientRect(),
+                      x = e.clientX - rect.left,
+                      y = e.clientY - rect.top;
+
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            }
+        };
+
+        // Stamp custom cursor interaction
+        const stampWrapper = document.getElementById("stampWrapper");
+        const stampContainer = document.getElementById("stampContainer");
+
+        stampWrapper.addEventListener("mousemove", (e) => {
+            const rect = stampWrapper.getBoundingClientRect();
+            // Calculate mouse offset from center of wrapper
+            const x = e.clientX - (rect.left + rect.width / 2);
+            const y = e.clientY - (rect.top + rect.height / 2);
+            
+            // Move stamp exactly with cursor, slightly scaled up
+            stampContainer.style.transition = "none";
+            stampContainer.style.transform = `translate(${x}px, ${y}px) scale(1.1)`;
+        });
+
+        stampWrapper.addEventListener("mouseleave", () => {
+            stampContainer.style.transition = "transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+            stampContainer.style.transform = "translate(0px, 0px) scale(1)";
+        });
+
+        stampWrapper.addEventListener("click", () => {
+            // Prepared for future redirection to footer section
+            console.log("Stamp clicked: redirect to footer");
+        });
+    </script>
+</body>
+</html>

@@ -6,44 +6,132 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
-window.addEventListener('load', () => {
-    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out', delay: 0.8 });
+// === PRELOADER & STICKER TRAIL ===
+const preloaderTl = gsap.timeline({ paused: true });
+
+// Disable lenis scrolling during preloader
+lenis.stop();
+
+// 1. Counter
+let counterObj = { value: 0 };
+const counterEl = document.getElementById('preloaderCounter');
+preloaderTl.to(counterObj, {
+    value: 99,
+    duration: 3.5,
+    ease: "power2.inOut",
+    onUpdate: () => {
+        if(counterEl) counterEl.textContent = Math.floor(counterObj.value);
+    }
 });
 
-// === 1. NAVBAR ===
-const menuBtn = document.getElementById('menuBtn');
-const navOverlay = document.getElementById('navOverlay');
-const navCloseBtn = document.getElementById('navCloseBtn');
-const navLinks = document.querySelectorAll('#navLinks a');
+let isPageLoaded = false;
+window.addEventListener('load', () => {
+    isPageLoaded = true;
+});
 
-function openNav() {
-    navOverlay.classList.add('open');
-    document.body.classList.add('nav-open');
-    menuBtn.style.opacity = '0'; menuBtn.style.pointerEvents = 'none';
-    navLinks.forEach((link, i) => {
-        setTimeout(() => link.classList.add('nav-visible'), 120 + i * 100);
+// Start timeline immediately so animations play while loading
+preloaderTl.play();
+
+// Wait for load if not loaded by the time it reaches 99%
+preloaderTl.add(() => {
+    if (!isPageLoaded) {
+        preloaderTl.pause();
+        const checkLoad = setInterval(() => {
+            if (isPageLoaded) {
+                clearInterval(checkLoad);
+                preloaderTl.play();
+            }
+        }, 100);
+    }
+});
+
+preloaderTl.to(counterObj, {
+    value: 100,
+    duration: 0.2,
+    onUpdate: () => {
+        if(counterEl) counterEl.textContent = Math.floor(counterObj.value);
+    }
+});
+
+// 2. Outro Sequence
+preloaderTl.to('.preloader-counter-container', {
+    y: 50,
+    opacity: 0,
+    duration: 0.6,
+    ease: "power2.in"
+})
+.to('#preloader', {
+    yPercent: -100,
+    duration: 1.2,
+    ease: "power4.inOut"
+}, "+=0.2")
+.add(() => {
+    lenis.start();
+    // Original Hero entrance
+    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
+}, "-=0.6");
+
+// 3. Sticker Trail Logic
+const templates = document.querySelectorAll('#sticker-templates .preloader-sticker');
+const trailContainer = document.getElementById('sticker-trail-container');
+const preloader = document.getElementById('preloader');
+
+if (templates.length > 0 && trailContainer && preloader) {
+    let stickerIndex = 0;
+    let lastSpawnTime = 0;
+    let lastSpawnX = 0;
+    let lastSpawnY = 0;
+    
+    preloader.addEventListener('mousemove', (e) => {
+        const now = Date.now();
+        const dist = Math.hypot(e.clientX - lastSpawnX, e.clientY - lastSpawnY);
+        
+        // Spawn a sticker if mouse moved enough distance or enough time passed
+        if (now - lastSpawnTime > 80 && dist > 40) {
+            lastSpawnTime = now;
+            lastSpawnX = e.clientX;
+            lastSpawnY = e.clientY;
+            
+            // Clone template
+            const sticker = templates[stickerIndex].cloneNode(true);
+            trailContainer.appendChild(sticker);
+            
+            // Random rotation between -15 and 15 degrees
+            const rot = (Math.random() - 0.5) * 30;
+            
+            gsap.set(sticker, {
+                left: e.clientX,
+                top: e.clientY,
+                rotation: rot,
+                scale: 0.8,
+                opacity: 1
+            });
+            
+            // Animate sticker fading out and dropping slightly
+            gsap.to(sticker, {
+                y: '+=30',
+                opacity: 0,
+                scale: 0.5,
+                duration: 1.5,
+                ease: "power2.in",
+                onComplete: () => {
+                    sticker.remove();
+                }
+            });
+            
+            stickerIndex = (stickerIndex + 1) % templates.length;
+        }
     });
 }
-function closeNav() {
-    // Fade out links with blur before closing panel
-    navLinks.forEach((l, i) => {
-        l.style.transition = 'opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease';
-        l.style.opacity = '0'; l.style.filter = 'blur(8px)'; l.style.transform = 'translateX(20px)';
-    });
-    setTimeout(() => {
-        navLinks.forEach(l => { l.classList.remove('nav-visible'); l.style.transition = ''; l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; });
-        navOverlay.classList.remove('open');
-        document.body.classList.remove('nav-open');
-        menuBtn.style.opacity = '1'; menuBtn.style.pointerEvents = 'auto';
-    }, 350);
-}
-menuBtn.addEventListener('click', openNav);
-navCloseBtn.addEventListener('click', closeNav);
-navLinks.forEach(link => {
+
+// === 1. NAVBAR ===
+
+const glassNavLinks = document.querySelectorAll('.glass-nav a');
+glassNavLinks.forEach(link => {
     link.addEventListener('click', e => {
-        e.preventDefault(); closeNav();
+        e.preventDefault();
         const target = document.querySelector(link.getAttribute('href'));
-        if (target) setTimeout(() => lenis.scrollTo(target, { offset: 0, duration: 1.2 }), 500);
+        if (target) lenis.scrollTo(target, { offset: 0, duration: 1.2 });
     });
 });
 
@@ -244,7 +332,7 @@ document.addEventListener('mousemove', (e) => {
         shouldShowTriangle = true;
     } else {
         const target = e.target;
-        if (target && target.closest && (target.closest('.hero-logo') || target.closest('.menu-btn'))) {
+        if (target && target.closest && target.closest('.hero-logo')) {
             shouldShowTriangle = true;
         }
     }
@@ -520,8 +608,22 @@ if (footerTopBtn) {
 gsap.from('.about-text', { y: 60, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.about-section', start: 'top 75%' } });
 gsap.from('.about-image-container', { y: 80, opacity: 0, duration: 1.4, ease: 'power3.out', scrollTrigger: { trigger: '.about-section', start: 'top 70%' } });
 
-// === 9.1 SERVICES SCROLL TRACK ===
-// Replaced by services.js
+// === 9.1 SERVICES SECTION BENTO CARDS ===
+const cardsContainer = document.getElementById("cards-container");
+if (cardsContainer) {
+    cardsContainer.addEventListener("mousemove", e => {
+        for (const card of document.getElementsByClassName("service-card")) {
+            const rect = card.getBoundingClientRect(),
+                  x = e.clientX - rect.left,
+                  y = e.clientY - rect.top;
+
+            card.style.setProperty("--mouse-x", `${x}px`);
+            card.style.setProperty("--mouse-y", `${y}px`);
+        }
+    });
+}
+gsap.from('.services-title', { y: 50, opacity: 0, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: '.services-section', start: 'top 80%' } });
+gsap.from('.service-card', { y: 80, opacity: 0, duration: 1.2, stagger: 0.15, ease: 'power3.out', scrollTrigger: { trigger: '.services-grid', start: 'top 80%' } });
 
 // === ABOUT ME — single-sweep hand-drawn reveal ===
 (function initPencilDraw() {

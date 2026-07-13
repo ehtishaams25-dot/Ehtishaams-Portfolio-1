@@ -37,6 +37,43 @@
 </head>
 
 <body>
+    <!-- PRELOADER -->
+    <div id="preloader">
+        <!-- Templates for the sticker trail -->
+        <div id="sticker-templates" style="display: none;">
+            <div class="preloader-sticker sticker-1">es.</div>
+            <div class="preloader-sticker sticker-2">
+                <img src="biege logos/TWA logo.png" alt="TWA">
+            </div>
+            <div class="preloader-sticker sticker-3">50M+<br>Views</div>
+            <div class="preloader-sticker sticker-4">
+                <img src="biege logos/Tiger IOT logo.png" alt="Tiger">
+            </div>
+            <div class="preloader-sticker sticker-5">MOTION</div>
+            <div class="preloader-sticker sticker-6">CREATIVE</div>
+        </div>
+        
+        <!-- Container for dynamically spawned stickers -->
+        <div id="sticker-trail-container"></div>
+        
+        <div class="preloader-counter-container">
+            <div class="preloader-counter" id="preloaderCounter">0</div>
+            <div class="preloader-monogram">es.</div>
+        </div>
+    </div>
+
+    <!-- GRAIN OVERLAY -->
+    <div class="grain"></div>
+
+    <!-- FLOATING GLASSMORPHIC NAVBAR -->
+    <nav class="glass-nav" id="glassNav">
+        <a href="#hero" class="nav-logo-text">es.</a>
+        <a href="#about">about</a>
+        <a href="#services">services</a>
+        <a href="#works">works</a>
+        <a href="#footer-section">let's talk</a>
+    </nav>
+
     <!-- CURSOR -->
     <canvas id="cursor-trail"></canvas>
 
@@ -52,18 +89,6 @@
         </svg>
         <span class="cursor-text">view full video</span>
     </div>
-
-    <!-- RESPONSIVE NAV OVERLAY -->
-    <nav class="nav-overlay" id="navOverlay">
-        <button class="nav-close-btn" id="navCloseBtn">Close ✕</button>
-        <ul class="nav-links" id="navLinks">
-            <li><a href="#hero">home</a></li>
-            <li><a href="#about">about me</a></li>
-            <li><a href="#works">recent works</a></li>
-            <li><a href="#video-scroll">gallery</a></li>
-            <li><a href="#footer-section">contact</a></li>
-        </ul>
-    </nav>
 
     <!-- SMOOTH SCROLL WRAPPER -->
     <div id="smooth-wrapper">
@@ -89,7 +114,6 @@
                                     Lives: <span id="livesContainer">❤️❤️❤️</span>
                                 </div>
                             </div>
-                            <button class="menu-btn" id="menuBtn">Menu</button>
                         </div>
 
                         <div class="hero-center">
@@ -189,6 +213,59 @@
                         </div>
                     </section>
 
+                    <!-- ===== SERVICES SECTION ===== -->
+                    <section class="services-section" id="services">
+                        <h2 class="services-title">services</h2>
+                        <div class="services-grid" id="cards-container">
+                            
+                            <!-- Card 1 -->
+                            <div class="service-card">
+                                <div class="card-content">
+                                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19.07 4.93a3.5 3.5 0 0 0-4.95 0L3.5 15.54a2.5 2.5 0 0 0-.7 1.41l-.77 4.25a1 1 0 0 0 1.16 1.16l4.25-.77a2.5 2.5 0 0 0 1.41-.7L19.07 9.88a3.5 3.5 0 0 0 0-4.95ZM5.83 17.5l-1.42 1.42.26-1.42 1.16-1.16v1.16ZM17.66 8.46l-8.5 8.5-1.41-1.41 8.5-8.5 1.41 1.41Z"/>
+                                    </svg>
+                                    <h3>Logo<br>Design</h3>
+                                    <p>We make logos that feel right. Not just good-looking but meaningful, memorable and built to last for your brand.</p>
+                                </div>
+                            </div>
+
+                            <!-- Card 2 -->
+                            <div class="service-card">
+                                <div class="card-content">
+                                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 17h18v2H3v-2Zm18-7-2.3 5H5.3L3 10l5.5 3.5L12 6l3.5 7.5L21 10Z"/>
+                                    </svg>
+                                    <h3>Brand Identity<br>Development</h3>
+                                    <p>A brand is more than a logo. We help you show up the same way everywhere - Online, offline and everything between.</p>
+                                </div>
+                            </div>
+
+                            <!-- Card 3 -->
+                            <div class="service-card">
+                                <div class="card-content">
+                                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M7 3h10v3h3v6h-3v9H7v-9H4V6h3V3Zm2 2v1h6V5H9Zm-3 3v2h12V8H6Zm3 4v7h6v-7H9Z"/>
+                                    </svg>
+                                    <h3>Packaging<br>Design</h3>
+                                    <p>Good packaging tells a story before anyone reads a word. We design packs that stand out, feel great and connect.</p>
+                                </div>
+                            </div>
+
+                            <!-- Card 4 -->
+                            <div class="service-card">
+                                <div class="card-content">
+                                    <svg class="card-icon" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v2h16V6H4Zm0 4v8h16v-8H4Zm3 2h6v2H7v-2Z"/>
+                                        <path d="M15 15l2 5 2-2 3 2-1-4 3-1-9-3z" fill="var(--gold)"/>
+                                    </svg>
+                                    <h3>Website Design<br>& Development</h3>
+                                    <p>We build websites that look good and work better. Fast, responsive, and designed to turn visitors into customers.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
                     <!-- RECENT WORKS (Carousel) -->
                     <section class="recent-works-section" id="works">
                         <h2 class="recent-works-title">recent works</h2>
@@ -279,27 +356,6 @@
                         </div>
                     </section>
 
-                    <!-- ===== SERVICES SCROLL TRACK ===== -->
-                    <!-- <section class="services-scroll-section" id="services">
-                        <div class="services-sticky-container">
-                            <div class="services-cards-track">
-                                <div class="service-card">
-                                    <img src="/svg/s01.svg" alt="Logo Design" class="service-card-image">
-
-                                    <div class="service-card-content">
-                                        <h3 class="service-card-title">
-                                            Logo <br class="desktop-break"> Design
-                                        </h3>
-
-                                        <p class="service-card-description">
-                                            We make logos that feel right. Not just good-looking but meaningful,
-                                            memorable and built to last for your brand.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section> -->
 
 
 

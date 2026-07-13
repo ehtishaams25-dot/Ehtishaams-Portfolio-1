@@ -20,7 +20,7 @@ preloaderTl.to(counterObj, {
     duration: 3.5,
     ease: "power2.inOut",
     onUpdate: () => {
-        if(counterEl) counterEl.textContent = Math.floor(counterObj.value);
+        if (counterEl) counterEl.textContent = Math.floor(counterObj.value);
     }
 });
 
@@ -49,7 +49,7 @@ preloaderTl.to(counterObj, {
     value: 100,
     duration: 0.2,
     onUpdate: () => {
-        if(counterEl) counterEl.textContent = Math.floor(counterObj.value);
+        if (counterEl) counterEl.textContent = Math.floor(counterObj.value);
     }
 });
 
@@ -60,20 +60,20 @@ preloaderTl.to('.preloader-counter-container', {
     duration: 0.6,
     ease: "power2.in"
 })
-.to('#preloader', {
-    yPercent: -100,
-    duration: 1.2,
-    ease: "power4.inOut",
-    onComplete: () => {
-        const p = document.getElementById('preloader');
-        if (p) p.style.display = 'none';
-    }
-}, "+=0.2")
-.add(() => {
-    lenis.start();
-    // Original Hero entrance
-    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
-}, "-=0.6");
+    .to('#preloader', {
+        yPercent: -100,
+        duration: 1.2,
+        ease: "power4.inOut",
+        onComplete: () => {
+            const p = document.getElementById('preloader');
+            if (p) p.style.display = 'none';
+        }
+    }, "+=0.2")
+    .add(() => {
+        lenis.start();
+        // Original Hero entrance
+        gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
+    }, "-=0.6");
 
 // 3. Sticker Trail Logic
 const templates = document.querySelectorAll('#sticker-templates .preloader-sticker');
@@ -85,24 +85,24 @@ if (templates.length > 0 && trailContainer && preloader) {
     let lastSpawnTime = 0;
     let lastSpawnX = 0;
     let lastSpawnY = 0;
-    
+
     preloader.addEventListener('mousemove', (e) => {
         const now = Date.now();
         const dist = Math.hypot(e.clientX - lastSpawnX, e.clientY - lastSpawnY);
-        
+
         // Spawn a sticker if mouse moved enough distance or enough time passed
         if (now - lastSpawnTime > 80 && dist > 40) {
             lastSpawnTime = now;
             lastSpawnX = e.clientX;
             lastSpawnY = e.clientY;
-            
+
             // Clone template
             const sticker = templates[stickerIndex].cloneNode(true);
             trailContainer.appendChild(sticker);
-            
+
             // Random rotation between -15 and 15 degrees
             const rot = (Math.random() - 0.5) * 30;
-            
+
             gsap.set(sticker, {
                 left: e.clientX,
                 top: e.clientY,
@@ -110,7 +110,7 @@ if (templates.length > 0 && trailContainer && preloader) {
                 scale: 0.8,
                 opacity: 1
             });
-            
+
             // Animate sticker fading out and dropping slightly
             gsap.to(sticker, {
                 y: '+=30',
@@ -122,7 +122,7 @@ if (templates.length > 0 && trailContainer && preloader) {
                     sticker.remove();
                 }
             });
-            
+
             stickerIndex = (stickerIndex + 1) % templates.length;
         }
     });
@@ -710,8 +710,8 @@ if (cardsContainer) {
     cardsContainer.addEventListener("mousemove", e => {
         for (const card of document.getElementsByClassName("service-card")) {
             const rect = card.getBoundingClientRect(),
-                  x = e.clientX - rect.left,
-                  y = e.clientY - rect.top;
+                x = e.clientX - rect.left,
+                y = e.clientY - rect.top;
 
             card.style.setProperty("--mouse-x", `${x}px`);
             card.style.setProperty("--mouse-y", `${y}px`);
@@ -967,4 +967,5 @@ if (curvedTextPath) {
 
     curvedTextPath.setAttribute('startOffset', baseOffset + 'px');
 }
+
 

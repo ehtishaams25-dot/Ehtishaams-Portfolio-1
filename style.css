@@ -110,11 +110,12 @@ html.lenis {
     align-items: center;
     justify-content: center;
     text-align: center;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     z-index: 2;
     overflow: hidden;
     pointer-events: none;
-    transform: translate(-50%, -50%); /* Centered on cursor by default */
+    transform: translate(-50%, -50%);
+    /* Centered on cursor by default */
 }
 
 .sticker-1 {
@@ -136,7 +137,12 @@ html.lenis {
     background-color: var(--dark-void);
     border: 1.5px solid rgba(220, 181, 88, 0.3);
 }
-.sticker-2 img { width: 70%; height: auto; object-fit: contain; }
+
+.sticker-2 img {
+    width: 70%;
+    height: auto;
+    object-fit: contain;
+}
 
 .sticker-3 {
     width: 100px;
@@ -153,7 +159,12 @@ html.lenis {
     background-color: var(--forest-green);
     border: 1.5px solid rgba(220, 181, 88, 0.3);
 }
-.sticker-4 img { width: 70%; height: auto; object-fit: contain; }
+
+.sticker-4 img {
+    width: 70%;
+    height: auto;
+    object-fit: contain;
+}
 
 .sticker-5 {
     width: 130px;
@@ -293,9 +304,11 @@ html.lenis {
         padding: 0.6rem 1.8rem;
         max-width: 340px;
     }
+
     .glass-nav a {
         font-size: 0.8rem;
     }
+
     .glass-nav a.nav-logo-text {
         font-size: 1.5rem;
     }
@@ -997,9 +1010,9 @@ body.show-triangle .custom-cursor {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
-                border-color 0.3s ease, 
-                box-shadow 0.3s ease;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
     cursor: none !important;
@@ -1011,7 +1024,10 @@ body.show-triangle .custom-cursor {
 .service-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(220, 181, 88, 0.2), transparent 40%);
     opacity: 0;
     transition: opacity 0.3s;
@@ -1067,6 +1083,7 @@ body.show-triangle .custom-cursor {
     .services-grid {
         flex-direction: column;
     }
+
     .service-card {
         width: 100%;
     }
@@ -1638,6 +1655,7 @@ footer {
 }
 
 @media (max-width: 768px) {
+
     .tv-overlay,
     .chromatic-aberration {
         display: none !important;

@@ -1892,6 +1892,7 @@ footer {
         align-items: center;
         width: 100%;
         gap: 0;
+        padding: 0 0.95rem;
     }
 
     .hero-title {
@@ -1907,12 +1908,31 @@ footer {
         font-size: clamp(4rem, 14vw, 6.2rem);
     }
 
+    .score-box {
+        font-size: 0.72rem;
+        gap: 6px;
+    }
+
     .score-number {
-        font-size: 1.3rem;
+        font-size: 1rem;
     }
 
     .lives-box {
-        font-size: 0.95rem;
+        font-size: 0.75rem;
+        gap: 4px;
+    }
+
+    .level-up-toast {
+        top: 7.2rem;
+        right: var(--content-margin);
+        padding: 6px 14px;
+        font-size: 0.72rem;
+        gap: 2px;
+        border-left: 2px solid var(--gold);
+    }
+
+    .level-up-toast .speed-up {
+        font-size: 0.6rem;
     }
 
     .marquee-logo {

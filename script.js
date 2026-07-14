@@ -761,6 +761,13 @@ const rawTestimonials = [
         text: "“Ehtishaam has been a mainstay for my channel, right from inception. He is a fast learner, and even though he did not know about this niche, he learnt fast. He works hard, keeps to the committed timelines, is straightforward about his availability and always delivers. His insights have helped grow the channel much faster than it would have otherwise as a niche channel.",
         designation: "The Weekend Aquarist"
     },
+    {
+        name: "~Nikita Jeswani",
+        image: "biege logos/it_square_icon.png",
+        text: "“Oh i love Ehtishaam's work, he's so creative, his designs are unique, he puts good thought & effort in this work.<br><br>Can totally rely on him for such stuff”",
+        designation: "IT Square",
+        link: "https://theitsquare.com/?srsltid=AfmBOooX_tzqTmfhCH2p4VAwy1RYlLv5zO0xMDchFkGc33swSqFVHbd2"
+    },
     // {
     //     name: "ayzz.designer",
     //     image: "https://randomuser.me/api/portraits/men/32.jpg",
@@ -805,7 +812,7 @@ if (tTrack) {
                 <div class="testimonial-card-header">
                     <img src="${item.image}" alt="${item.name}" class="testimonial-profile-img">
                     <div class="testimonial-user-info">
-                        <h3>${item.designation}</h3>
+                        <h3>${item.link ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;" onclick="event.stopPropagation()">${item.designation}</a>` : item.designation}</h3>
                     </div>
                 </div>
                 <div class="testimonial-text">

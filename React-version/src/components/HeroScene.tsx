@@ -239,7 +239,7 @@ export function HeroScene() {
       setScore(nextScore)
       const level = Math.floor(nextScore / 10)
       if (level > 0 && nextScore % 10 === 0) {
-        speedMultiplier = 1 + nextScore * 0.012
+        speedMultiplier = 1 + nextScore * 0.03
         setToast(`LEVEL ${level}  +${Math.round((speedMultiplier - 1) * 100)}% SPEED`)
         window.setTimeout(() => setToast(''), 1800)
       }

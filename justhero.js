@@ -227,7 +227,7 @@ function autoSweep() {
     requestAnimationFrame(autoSweep);
 }
 autoSweep();
-function checkLevel() { speedMult = 1.0 + score * 0.01; const nl = Math.floor(score / 10); if (nl > lvl) { lvl = nl; snd('levelup'); toastEl.innerHTML = `LEVEL ${lvl} <span class="speed-up">+${Math.round((speedMult - 1) * 100)}% speed</span>`; gsap.fromTo(toastEl, { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.35, ease: 'power3.out' }); gsap.to(toastEl, { opacity: 0, x: -40, duration: 0.3, delay: 2.2 }); } }
+function checkLevel() { speedMult = 1.0 + score * 0.03; const nl = Math.floor(score / 10); if (nl > lvl) { lvl = nl; snd('levelup'); toastEl.innerHTML = `LEVEL ${lvl} <span class="speed-up">+${Math.round((speedMult - 1) * 100)}% speed</span>`; gsap.fromTo(toastEl, { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.35, ease: 'power3.out' }); gsap.to(toastEl, { opacity: 0, x: -40, duration: 0.3, delay: 2.2 }); } }
 
 let isHeroVisible = true;
 const heroObserver = new IntersectionObserver((entries) => {

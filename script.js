@@ -6,33 +6,31 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
-// === PRELOADER & STICKER TRAIL ===
+// === PRELOADER & 7-COLUMN STAGGERED BLIND LIFT ===
 const preloaderTl = gsap.timeline({ paused: true });
 
 // Disable lenis scrolling during preloader
 lenis.stop();
 
-// 1. Counter
-let counterObj = { value: 0 };
-const counterEl = document.getElementById('preloaderCounter');
-preloaderTl.to(counterObj, {
-    value: 99,
-    duration: 3.5,
-    ease: "power2.inOut",
-    onUpdate: () => {
-        if (counterEl) counterEl.textContent = Math.floor(counterObj.value);
-    }
-});
+// Set initial logo state for smooth scale-up entrance
+gsap.set('#preloaderLogo', { scale: 0.65, opacity: 0 });
 
 let isPageLoaded = false;
 window.addEventListener('load', () => {
     isPageLoaded = true;
 });
 
-// Start timeline immediately so animations play while loading
 preloaderTl.play();
 
-// Wait for load if not loaded by the time it reaches 99%
+// 1. Entrance: Logo scales smoothly into place
+preloaderTl.to('#preloaderLogo', {
+    scale: 1,
+    opacity: 1,
+    duration: 0.75,
+    ease: "power3.out"
+});
+
+// 2. Pause if page is not yet loaded
 preloaderTl.add(() => {
     if (!isPageLoaded) {
         preloaderTl.pause();
@@ -41,92 +39,28 @@ preloaderTl.add(() => {
                 clearInterval(checkLoad);
                 preloaderTl.play();
             }
-        }, 100);
+        }, 80);
     }
-});
+}, "+=0.25");
 
-preloaderTl.to(counterObj, {
-    value: 100,
-    duration: 0.2,
-    onUpdate: () => {
-        if (counterEl) counterEl.textContent = Math.floor(counterObj.value);
+// 3. Staggered slide up of all 7 columns from left to right
+// The logo is nested inside the 4th column so it stays stuck to the rectangle and leaves with it without scaling twice.
+preloaderTl.to('.preloader-col', {
+    yPercent: -100,
+    duration: 1.1,
+    stagger: 0.07,
+    ease: "power3.inOut",
+    onComplete: () => {
+        const p = document.getElementById('preloader');
+        if (p) p.style.display = 'none';
     }
-});
+}, "+=0.15");
 
-// 2. Outro Sequence
-preloaderTl.to('.preloader-counter-container', {
-    y: 50,
-    opacity: 0,
-    duration: 0.6,
-    ease: "power2.in"
-})
-    .to('#preloader', {
-        yPercent: -100,
-        duration: 1.2,
-        ease: "power4.inOut",
-        onComplete: () => {
-            const p = document.getElementById('preloader');
-            if (p) p.style.display = 'none';
-        }
-    }, "+=0.2")
-    .add(() => {
-        lenis.start();
-        // Original Hero entrance
-        gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
-    }, "-=0.6");
-
-// 3. Sticker Trail Logic
-const templates = document.querySelectorAll('#sticker-templates .preloader-sticker');
-const trailContainer = document.getElementById('sticker-trail-container');
-const preloader = document.getElementById('preloader');
-
-if (templates.length > 0 && trailContainer && preloader) {
-    let stickerIndex = 0;
-    let lastSpawnTime = 0;
-    let lastSpawnX = 0;
-    let lastSpawnY = 0;
-
-    preloader.addEventListener('mousemove', (e) => {
-        const now = Date.now();
-        const dist = Math.hypot(e.clientX - lastSpawnX, e.clientY - lastSpawnY);
-
-        // Spawn a sticker if mouse moved enough distance or enough time passed
-        if (now - lastSpawnTime > 80 && dist > 40) {
-            lastSpawnTime = now;
-            lastSpawnX = e.clientX;
-            lastSpawnY = e.clientY;
-
-            // Clone template
-            const sticker = templates[stickerIndex].cloneNode(true);
-            trailContainer.appendChild(sticker);
-
-            // Random rotation between -15 and 15 degrees
-            const rot = (Math.random() - 0.5) * 30;
-
-            gsap.set(sticker, {
-                left: e.clientX,
-                top: e.clientY,
-                rotation: rot,
-                scale: 0.8,
-                opacity: 1
-            });
-
-            // Animate sticker fading out and dropping slightly
-            gsap.to(sticker, {
-                y: '+=30',
-                opacity: 0,
-                scale: 0.5,
-                duration: 1.5,
-                ease: "power2.in",
-                onComplete: () => {
-                    sticker.remove();
-                }
-            });
-
-            stickerIndex = (stickerIndex + 1) % templates.length;
-        }
-    });
-}
+// 4. Enable scrolling & Hero entrance
+preloaderTl.add(() => {
+    lenis.start();
+    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
+}, "-=0.75");
 
 // === 1. NAVBAR ===
 

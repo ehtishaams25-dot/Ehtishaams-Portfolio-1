@@ -8,6 +8,9 @@
     <meta name="description"
         content="Mohammed Ehtishaam Shaikh — Video Editor and Motion Graphics Designer with 3+ years of hands-on experience.">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/webp" href="favicon.webp">
+
     <!-- Fonts -->
     <link
         href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Poppins:wght@300;400;500;600&display=swap"
@@ -31,32 +34,29 @@
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
 
 
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 
 <body>
     <!-- PRELOADER -->
     <div id="preloader">
-        <!-- Templates for the sticker trail -->
-        <div id="sticker-templates" style="display: none;">
-            <div class="preloader-sticker sticker-1">es.</div>
-            <div class="preloader-sticker sticker-2">
-                <img src="biege logos/TWA logo.png" alt="TWA">
+        <!-- 7 Vertical Blinds / Columns -->
+        <div class="preloader-columns">
+            <div class="preloader-col"></div>
+            <div class="preloader-col"></div>
+            <div class="preloader-col"></div>
+            <div class="preloader-col">
+                <!-- Center Logo Overlay -->
+                <div class="preloader-logo-overlay" id="preloaderLogo">
+                    <svg class="preloader-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Base Desaturated Logo -->
+                        <image href="Refrence images/Group 5.png" xlink:href="Refrence images/Group 5.png" x="0" y="0" width="200" height="200" />
+                    </svg>
+                </div>
             </div>
-            <div class="preloader-sticker sticker-3">50M+<br>Views</div>
-            <div class="preloader-sticker sticker-4">
-                <img src="biege logos/Tiger IOT logo.png" alt="Tiger">
-            </div>
-            <div class="preloader-sticker sticker-5">MOTION</div>
-            <div class="preloader-sticker sticker-6">CREATIVE</div>
-        </div>
-        
-        <!-- Container for dynamically spawned stickers -->
-        <div id="sticker-trail-container"></div>
-        
-        <div class="preloader-counter-container">
-            <div class="preloader-counter" id="preloaderCounter">0</div>
-            <div class="preloader-monogram">es.</div>
+            <div class="preloader-col"></div>
+            <div class="preloader-col"></div>
+            <div class="preloader-col"></div>
         </div>
     </div>
 
@@ -115,7 +115,11 @@
                         </div>
 
                         <div class="hero-center">
-                            <h1 class="hero-title" id="center-name">Mohammed<br>Ehtishaam<br><i>Shaikh</i></h1>
+                            <h1 class="hero-title" id="center-name">
+                                <span class="name-line name-top">MOHAMMED</span>
+                                <span class="name-line name-middle">EHTISHAAM</span>
+                                <span class="name-line name-bottom">SHAIKH</span>
+                            </h1>
                         </div>
 
                         <div style="height: 2rem;"></div>
@@ -520,7 +524,7 @@
     </footer>
 
     <script src="justhero.js"></script>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=6"></script>
 </body>
 
 </html>

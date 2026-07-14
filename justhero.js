@@ -164,7 +164,7 @@ function createTextPlane(text) {
     return new THREE.Mesh(new THREE.PlaneGeometry(78, 19.5), mat);
 }
 document.fonts.ready.then(() => {
-    const texts = ["200+ Projects completed", "500+ videos edited", "worked with 12+ brands"];
+    const texts = ["200+ Projects completed", "500+ videos edited", "worked with 30+ brands"];
     for (let i = 0; i < 9; i++) {
         const mesh = createTextPlane(texts[i % texts.length]);
         let tx = (Math.random() - 0.5) * 160;

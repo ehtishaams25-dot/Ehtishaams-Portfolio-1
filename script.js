@@ -23,8 +23,80 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
-// === HERO ENTRANCE ===
-gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
+// === PRELOADER & 7-COLUMN STAGGERED BLIND LIFT ===
+const preloaderTl = gsap.timeline({ paused: true });
+
+// Disable lenis scrolling during preloader
+lenis.stop();
+
+// Set initial logo state for smooth scale-up entrance
+gsap.set('#preloaderLogo', { scale: 0.65, opacity: 0 });
+
+let isPageLoaded = document.readyState === 'complete';
+window.addEventListener('load', () => {
+    isPageLoaded = true;
+});
+
+let isTimeoutReached = false;
+// Safety fallback timeout: if videos take longer than 5 seconds on a slow connection, lift smoothly
+setTimeout(() => {
+    isTimeoutReached = true;
+}, 5000);
+
+// Check if all video elements across the page have buffered enough data
+function areVideosReady() {
+    const allVideos = document.querySelectorAll('video');
+    if (allVideos.length === 0) return true;
+    for (let i = 0; i < allVideos.length; i++) {
+        if (allVideos[i].readyState < 3 && !allVideos[i].error) {
+            return false;
+        }
+    }
+    return true;
+}
+
+preloaderTl.play();
+
+// 1. Entrance: Logo scales smoothly into place
+preloaderTl.to('#preloaderLogo', {
+    scale: 1,
+    opacity: 1,
+    duration: 0.75,
+    ease: "power3.out"
+});
+
+// 2. Pause and wait until both the page and all videos have loaded (or safety timeout is reached)
+preloaderTl.add(() => {
+    function checkLoadStatus() {
+        if ((isPageLoaded && areVideosReady()) || isTimeoutReached) {
+            preloaderTl.play();
+        } else {
+            setTimeout(checkLoadStatus, 80);
+        }
+    }
+    if (!((isPageLoaded && areVideosReady()) || isTimeoutReached)) {
+        preloaderTl.pause();
+        checkLoadStatus();
+    }
+}, "+=0.25");
+
+// 3. Staggered slide up of all 7 columns from left to right
+preloaderTl.to('.preloader-col', {
+    yPercent: -100,
+    duration: 1.1,
+    stagger: 0.07,
+    ease: "power3.inOut",
+    onComplete: () => {
+        const p = document.getElementById('preloader');
+        if (p) p.style.display = 'none';
+    }
+}, "+=0.15");
+
+// 4. Enable scrolling & Hero entrance
+preloaderTl.add(() => {
+    lenis.start();
+    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
+}, "-=0.75");
 
 // === 1. NAVBAR ===
 
@@ -421,7 +493,7 @@ function initVideoCarousel() {
     let cardW = initCfg.w, gap = initCfg.g, step = cardW + gap, totalOrig = videoFiles.length, setW = totalOrig * step, copies = 3, totalCards = totalOrig * copies, cardsData = [];
     for (let i = 0; i < totalCards; i++) {
         const oi = i % totalOrig, card = document.createElement('div'); card.className = 'video-card';
-        const v = document.createElement('video'); v.src = videoFiles[oi]; v.preload = 'none'; v.loop = true; v.controls = true; v.playsInline = true; v.muted = true;
+        const v = document.createElement('video'); v.src = videoFiles[oi]; v.preload = 'auto'; v.loop = true; v.controls = true; v.playsInline = true; v.muted = true;
         card.appendChild(v); track.appendChild(card);
         const ox = i - Math.floor(totalCards / 2); cardsData.push({ element: card, video: v, initialX: ox * step, isHovered: false, currentVolume: 0 });
         card.addEventListener('mouseenter', () => {
@@ -506,6 +578,7 @@ function initVideoCarousel() {
 }
 
 if (videoSection) {
+    initVideoCarousel();
     const videoCarouselObserver = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting) {
             initVideoCarousel();

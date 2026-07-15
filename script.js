@@ -23,65 +23,8 @@ lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => { lenis.raf(time * 1000); });
 gsap.ticker.lagSmoothing(0);
 
-// === PRELOADER & 7-COLUMN STAGGERED BLIND LIFT ===
-const preloaderTl = gsap.timeline({ paused: true });
-
-// Disable lenis scrolling during preloader
-lenis.stop();
-
-// Set initial logo state for smooth scale-up entrance
-gsap.set('#preloaderLogo', { scale: 0.65, opacity: 0 });
-
-let isPageLoaded = document.readyState === 'complete' || document.readyState === 'interactive';
-window.addEventListener('load', () => {
-    isPageLoaded = true;
-});
-// Safety fallback: ensure curtain always lifts promptly even if background assets take time
-setTimeout(() => {
-    isPageLoaded = true;
-}, 800);
-
-preloaderTl.play();
-
-// 1. Entrance: Logo scales smoothly into place
-preloaderTl.to('#preloaderLogo', {
-    scale: 1,
-    opacity: 1,
-    duration: 0.75,
-    ease: "power3.out"
-});
-
-// 2. Pause if page is not yet loaded
-preloaderTl.add(() => {
-    if (!isPageLoaded && document.readyState !== 'complete' && document.readyState !== 'interactive') {
-        preloaderTl.pause();
-        const checkLoad = setInterval(() => {
-            if (isPageLoaded || document.readyState === 'complete' || document.readyState === 'interactive') {
-                clearInterval(checkLoad);
-                preloaderTl.play();
-            }
-        }, 80);
-    }
-}, "+=0.25");
-
-// 3. Staggered slide up of all 7 columns from left to right
-// The logo is nested inside the 4th column so it stays stuck to the rectangle and leaves with it without scaling twice.
-preloaderTl.to('.preloader-col', {
-    yPercent: -100,
-    duration: 1.1,
-    stagger: 0.07,
-    ease: "power3.inOut",
-    onComplete: () => {
-        const p = document.getElementById('preloader');
-        if (p) p.style.display = 'none';
-    }
-}, "+=0.15");
-
-// 4. Enable scrolling & Hero entrance
-preloaderTl.add(() => {
-    lenis.start();
-    gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
-}, "-=0.75");
+// === HERO ENTRANCE ===
+gsap.from('.hero-header', { opacity: 0, y: 10, duration: 1, ease: 'power2.out' });
 
 // === 1. NAVBAR ===
 

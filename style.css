@@ -561,20 +561,20 @@ body.nav-open .chromatic-aberration {
     color: var(--forest-green);
     font-weight: 400;
     font-style: normal;
-    margin: 0 auto clamp(2rem, 4vh, 3.5rem) auto;
+    margin: 0 auto clamp(2.6rem, 5.2vh, 4.5rem) auto;
     width: 100%;
     max-width: var(--max-width);
     padding: 0 var(--content-margin);
     line-height: 1;
     letter-spacing: -0.02em;
-    text-align: left;
+    text-align: center;
 }
 
 .carousel-container {
     display: flex;
     gap: 3.5rem;
-    padding-left: max(var(--content-margin), calc((100vw - var(--max-width)) / 2 + var(--content-margin)));
-    padding-right: 4rem;
+    padding-left: clamp(1.5rem, 3.5vw, 4rem);
+    padding-right: clamp(1.5rem, 3.5vw, 4rem);
     width: max-content;
     padding-bottom: 2rem;
     will-change: transform;
@@ -900,9 +900,9 @@ body.show-triangle .custom-cursor {
 .services-section {
     width: 100%;
     min-height: 100vh;
-    max-width: var(--max-width);
+    max-width: 100%;
     margin: 0 auto;
-    padding: 6rem var(--content-margin);
+    padding: 6rem clamp(1.5rem, 3.5vw, 4rem);
     position: relative;
     z-index: 1;
     display: flex;
@@ -917,9 +917,11 @@ body.show-triangle .custom-cursor {
     color: var(--forest-green);
     font-weight: 400;
     font-style: normal;
-    margin-bottom: 2.5rem;
+    margin-bottom: clamp(4.5rem, 7vh, 6rem);
     line-height: 1;
     letter-spacing: -0.02em;
+    text-align: center;
+    width: 100%;
 }
 
 .services-grid {
@@ -934,11 +936,11 @@ body.show-triangle .custom-cursor {
     background-color: var(--forest-green);
     border: 1px solid rgba(239, 231, 216, 0.15);
     border-radius: 1.25rem;
-    padding: 2.25rem 1.75rem;
+    padding: 2.5rem 2.25rem;
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 360px;
+    min-height: 380px;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
         border-color 0.3s ease,
         box-shadow 0.3s ease;
@@ -981,7 +983,7 @@ body.show-triangle .custom-cursor {
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-    gap: 4rem;
+    gap: 4.5rem;
 }
 
 .service-card .card-top {

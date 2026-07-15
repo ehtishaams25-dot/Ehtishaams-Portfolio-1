@@ -707,8 +707,8 @@ if (cardsContainer) {
         }
     });
 }
-gsap.from('.services-title', { y: 50, opacity: 0, duration: 1.2, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-section', start: 'top 80%' } });
-gsap.from('.service-card', { y: 60, opacity: 0, duration: 1.0, stagger: 0.1, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-grid', start: 'top 85%' } });
+// gsap.from('.services-title', { y: 50, opacity: 0, duration: 1.2, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-section', start: 'top 80%' } });
+// gsap.from('.service-card', { y: 60, opacity: 0, duration: 1.0, stagger: 0.1, ease: 'power3.out', clearProps: 'transform,opacity', scrollTrigger: { trigger: '.services-grid', start: 'top 85%' } });
 
 // === ABOUT ME — single-sweep hand-drawn reveal ===
 (function initPencilDraw() {

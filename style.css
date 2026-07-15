@@ -98,7 +98,7 @@ html.lenis {
     height: 100vh;
     pointer-events: none !important;
     z-index: 9999;
-    opacity: 0.03;
+    opacity: 0.008;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     background-size: 120px 120px;
     background-repeat: repeat;
@@ -168,30 +168,9 @@ html.lenis {
 }
 
 /* ===== HERO EDGE OVERLAYS ===== */
-.tv-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 10;
-    background:
-        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
-        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    background-size: 100% 4px, 3px 100%;
-    opacity: 0.5;
-    mask-image: radial-gradient(ellipse at center, transparent 40%, black 100%);
-    -webkit-mask-image: radial-gradient(ellipse at center, transparent 40%, black 100%);
-}
-
+.tv-overlay,
 .chromatic-aberration {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9;
-    box-shadow: inset 0 0 120px 30px rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-    mask-image: radial-gradient(ellipse at center, transparent 45%, black 100%);
-    -webkit-mask-image: radial-gradient(ellipse at center, transparent 45%, black 100%);
+    display: none !important;
 }
 
 /* ===== SCROLL CONTENT — footer reveal spacer ===== */
@@ -219,30 +198,7 @@ main {
 /* Peripheral vision blur â€” left and right edges */
 .hero-peripheral-left,
 .hero-peripheral-right {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 10vw;
-    z-index: 3;
-    pointer-events: none;
-}
-
-.hero-peripheral-left {
-    left: 0;
-    background: linear-gradient(to right, rgba(3, 6, 4, 0.7) 0%, transparent 100%);
-    backdrop-filter: blur(4px) saturate(0.3);
-    -webkit-backdrop-filter: blur(4px) saturate(0.3);
-    mask-image: linear-gradient(to right, black 0%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to right, black 0%, transparent 100%);
-}
-
-.hero-peripheral-right {
-    right: 0;
-    background: linear-gradient(to left, rgba(3, 6, 4, 0.7) 0%, transparent 100%);
-    backdrop-filter: blur(4px) saturate(0.3);
-    -webkit-backdrop-filter: blur(4px) saturate(0.3);
-    mask-image: linear-gradient(to left, black 0%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+    display: none !important;
 }
 
 #hero-webgl {

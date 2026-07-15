@@ -65,7 +65,7 @@ ren.setSize(innerWidth, innerHeight); ren.setPixelRatio(isMobile ? 1 : Math.min(
 container.appendChild(ren.domElement);
 const rp = new THREE.RenderPass(scene, cam);
 const comp = new THREE.EffectComposer(ren); comp.addPass(rp);
-const bp = new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 1.0, 0.4, 0.3);
+const bp = new THREE.UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.35, 0.2, 0.6);
 if (!isMobile) comp.addPass(bp);
 scene.add(new THREE.AmbientLight(0xffffff, 1.5));
 const dirLight = new THREE.DirectionalLight(0xffffff, 2); dirLight.position.set(0, 50, 50); scene.add(dirLight);
@@ -338,7 +338,7 @@ function tick() {
 
 
     for (let i = 0; i < SN; i++) { const s = sArr[i]; s.z += curSpeed * s.v; if (s.z > cam.position.z + 200) { s.z = cam.position.z - 4500 - Math.random() * 1000; s.x = (Math.random() - 0.5) * 800; s.y = (Math.random() - 0.5) * 800; } dum.position.set(s.x, s.y, s.z); dum.scale.set(1, 1, 1 + curSpeed * s.v * 2.5); dum.updateMatrix(); sIM.setMatrixAt(i, dum.matrix); }
-    sIM.instanceMatrix.needsUpdate = true; bp.strength = 1.0 + (speedMult - 1) * 0.8;
+    sIM.instanceMatrix.needsUpdate = true; bp.strength = 0.35 + (speedMult - 1) * 0.3;
 
     for (let i = 0; i < allObj.length; i++) {
         const o = allObj[i], m = o.mesh;
@@ -418,6 +418,15 @@ function tick() {
                 if (ny > 40) ny = 40; if (ny < -40) ny = -40;
                 m.position.set(nx, ny, minZ - (100 + Math.random() * 120)); 
             }
+        }
+    }
+    const activeRings = allObj.filter(o => o.kind === 'ring' && !o.got && o.mesh.position.z <= cam.position.z + 40);
+    activeRings.sort((a, b) => b.mesh.position.z - a.mesh.position.z);
+    for (let i = 0; i < allObj.length; i++) {
+        const o = allObj[i];
+        if (o.kind === 'ring' && !o.got) {
+            const idx = activeRings.indexOf(o);
+            o.mesh.visible = (idx === 0 || idx === 1);
         }
     }
     for (let i = drops.length - 1; i >= 0; i--) { const d = drops[i]; d.position.x += d.userData.vx; d.position.y += d.userData.vy; d.position.z += d.userData.vz; d.userData.vy -= 0.1; d.userData.ttl--; d.scale.setScalar(Math.max(0, d.userData.ttl / 120)); if (d.userData.ttl <= 0) { scene.remove(d); drops.splice(i, 1); } }

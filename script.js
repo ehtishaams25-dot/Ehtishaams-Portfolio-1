@@ -43,14 +43,13 @@ const cCtx = cursorCanvas.getContext('2d');
 cursorCanvas.width = window.innerWidth; cursorCanvas.height = window.innerHeight;
 let trailParticles = [], ambientParticles = [];
 let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-const ambientParticleCount = isCursorEnabled() ? 40 : 0;
+const ambientParticleCount = 0;
 for (let i = 0; i < ambientParticleCount; i++) ambientParticles.push({ x: Math.random() * cursorCanvas.width, y: Math.random() * cursorCanvas.height, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, size: Math.random() * 1.5 + 0.5 });
 const isMobileCursorDisabled = () => !isCursorEnabled();
 const handleCursorMouseMove = rafThrottle(e => {
     if (isMobileCursorDisabled()) return;
     mouse.x = e.clientX;
     mouse.y = e.clientY;
-    trailParticles.push({ x: mouse.x, y: mouse.y, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2, life: 1.0, size: Math.random() * 2 + 1 });
 });
 window.addEventListener('mousemove', handleCursorMouseMove);
 
@@ -63,26 +62,6 @@ function animateCursor() {
     }
 
     cCtx.clearRect(0, 0, cursorCanvas.width, cursorCanvas.height);
-    cCtx.fillStyle = "rgba(220,181,88,0.35)";
-    for (let p of ambientParticles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = cursorCanvas.width;
-        if (p.x > cursorCanvas.width) p.x = 0;
-        if (p.y < 0) p.y = cursorCanvas.height;
-        if (p.y > cursorCanvas.height) p.y = 0;
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 120) {
-            const f = (120 - d) / 120;
-            p.x -= (dx / d) * f * 2;
-            p.y -= (dy / d) * f * 2;
-        }
-        cCtx.beginPath();
-        cCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        cCtx.fill();
-    }
     cCtx.beginPath();
     cCtx.arc(mouse.x, mouse.y, 4, 0, Math.PI * 2);
     cCtx.fillStyle = "rgba(220,181,88,0.8)";
@@ -90,21 +69,6 @@ function animateCursor() {
     cCtx.shadowColor = "#dcb558";
     cCtx.fill();
     cCtx.shadowBlur = 0;
-    for (let i = 0; i < trailParticles.length; i++) {
-        const p = trailParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.02;
-        if (p.life <= 0) {
-            trailParticles.splice(i, 1);
-            i--;
-            continue;
-        }
-        cCtx.beginPath();
-        cCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        cCtx.fillStyle = `rgba(220,181,88,${p.life})`;
-        cCtx.fill();
-    }
     cursorRaf = requestAnimationFrame(animateCursor);
 }
 animateCursor();
@@ -385,13 +349,15 @@ window.addEventListener('scroll', () => {
 
 // === 6. VIDEO CAROUSEL ===
 const videoFiles = [
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777833870/vid_6_rsor4d.mp4", "https://res.cloudinary.com/devodfvpg/video/upload/v1777833853/vid_5_dydn6k.mp4",
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777833849/vid_2_lvomec.mp4",
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777833848/vid_8_iz3cpy.mp4", "https://res.cloudinary.com/devodfvpg/video/upload/v1777833846/vid_7_gv7zok.mp4",
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777833834/vid_4_t3vqxz.mp4",
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777833837/vid_1_ehju5n.mp4", "https://res.cloudinary.com/devodfvpg/video/upload/v1777833827/vid_3_kjsf8d.mp4",
-    "https://res.cloudinary.com/devodfvpg/video/upload/v1777834715/vid_9_nprjnw.mp4", "https://res.cloudinary.com/devodfvpg/video/upload/v1777835015/vid_11_dzvcx8.mp4"
-
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833853/vid_5_dydn6k.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833849/vid_2_lvomec.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833848/vid_8_iz3cpy.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833846/vid_7_gv7zok.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833834/vid_4_t3vqxz.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833837/vid_1_ehju5n.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777833827/vid_3_kjsf8d.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777834715/vid_9_nprjnw.mp4",
+    "https://res.cloudinary.com/devodfvpg/video/upload/q_40,f_auto,c_limit,w_720,h_1280/v1777835015/vid_11_dzvcx8.mp4"
 ];
 const track = document.getElementById('track');
 const viewport = document.getElementById('viewport');
@@ -414,14 +380,9 @@ function initVideoCarousel() {
     }
     const initCfg = getShortFormConfig();
     let cardW = initCfg.w, gap = initCfg.g, step = cardW + gap, totalOrig = videoFiles.length, setW = totalOrig * step, copies = 3, totalCards = totalOrig * copies, cardsData = [];
-    function loopSeg(v, s, e) {
-        v.addEventListener('timeupdate', () => { if (v.currentTime >= e) v.currentTime = s; });
-        v.addEventListener('loadedmetadata', () => { if (v.currentTime < s) v.currentTime = s; }, { once: true });
-    }
     for (let i = 0; i < totalCards; i++) {
         const oi = i % totalOrig, card = document.createElement('div'); card.className = 'video-card';
         const v = document.createElement('video'); v.src = videoFiles[oi]; v.preload = 'none'; v.loop = true; v.controls = true; v.playsInline = true; v.muted = true;
-        if (oi === 0) loopSeg(v, 12, 18);
         card.appendChild(v); track.appendChild(card);
         const ox = i - Math.floor(totalCards / 2); cardsData.push({ element: card, video: v, initialX: ox * step, isHovered: false, currentVolume: 0 });
         card.addEventListener('mouseenter', () => {
